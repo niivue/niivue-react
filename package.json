@@ -1,0 +1,25 @@
+{
+  "name": "niivue-react",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "fix": "biome check --apply src/",
+    "fix:unsafe": "biome check --apply-unsafe src/",
+    "fmt": "biome format --write src/"
+  },
+  "devDependencies": {
+    "@types/deep-equal": "^1.0.4",
+    "biome": "^0.3.3",
+    "bun-types": "latest",
+    "vitest": "^1.0.4"
+  },
+  "peerDependencies": {
+    "@niivue/niivue": "^0.38.8",
+    "react": "^17 || ^18",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "deep-equal": "^2.2.3"
+  }
+}
