@@ -1,6 +1,10 @@
-import deepEqual from 'deep-equal';
-
 type HasUrlObject = {[key: string]: any, url: string};
+
+/**
+ * A special value which indicates that the difference between two objects is Irreconcilable.
+ */
+const IRRECONCILABLE = {};
+Object.freeze(IRRECONCILABLE);
 
 /**
  * Difference between two lists of objects.
@@ -41,31 +45,86 @@ function toUrlEntry<T extends HasUrlObject>(x: T): [string, T] {
 }
 
 /**
- * Behaves like `diffPrimitive` but adds logic for object and array type values: deep comparison is used.
- * If `x[key]` does not deeply equal `y[key]`, then the entire returned object will be `y`.
+ * Behaves like `diffPrimitive` but handles object values as well.
+ * If `y[key]` is an `object`:
+ *
+ * - if `x[key]` and `y[key]` have different keys: returned value is `🎆IRRECONCILABLE`.
+ * - if `x[key]` and `y[key]` have different values: call `diffPrimitive`
  */
 function diff<T extends {[key: string]: any}>(x: T, y: T): any {
   const xObjects = getValuesThatAreObjects(x);
   const yObjects = getValuesThatAreObjects(y);
-  if (!deepEqual(xObjects, yObjects)) {
-    return y;
+
+  // e.g. x = {}, y = {layers: {}}
+  if (!objectSameKeys(xObjects, yObjects)) {
+    return IRRECONCILABLE;
   }
-  return diffPrimitive(
+
+  const zip = zipObjects(xObjects, yObjects);
+
+  // e.g. x = {layers: {one: 1}}, y = {layers: {one: 1, two: 2}}
+  if (zip.findIndex(([_key, xObject, yObject]) => !objectSameKeys(xObject, yObject)) !== -1) {
+    return IRRECONCILABLE;
+  }
+
+  const objectDiffEntries = zip
+    .map(([outerKey, xObject, yObject]): [string, Object] => {
+      const diffEntries = zipObjects(xObject, yObject)
+        .map(([innerKey, xValue, yValue]): [string, any] => [innerKey, diffPrimitive(xValue, yValue)])
+        .filter(isNotEmptyEntry);
+      return [outerKey, Object.fromEntries(diffEntries)];
+    })
+    .filter(isNotEmptyEntry);
+
+  // throw Error(JSON.stringify(objectDiffEntries));
+
+  // compute diff of primitive values
+  const primitiveDiff = diffPrimitive(
     getValuesThatArePrimitives(x),
     getValuesThatArePrimitives(y)
   );
+
+  return {
+    ...Object.fromEntries(objectDiffEntries),
+    ...primitiveDiff
+  };
 }
 
-function getValuesThatAreObjects(x: {[key: string]: any}): {[key: string]: any} {
-  return Object.fromEntries(Object.entries(x).filter(entryNeedsDeepEquality));
+function isNotEmptyEntry(t: [any, Object]): boolean {
+  return Object.keys(t[1]).length !== 0;
 }
 
-function getValuesThatArePrimitives(x: {[key: string]: any}): {[key: string]: any} {
-  return Object.fromEntries(Object.entries(x).filter((entry) => !entryNeedsDeepEquality(entry)));
+function zipObjects<X, Y>(x: {[key: string]: X}, y: {[key: string]: Y}): [string, X, Y][] {
+  return Object.entries(x)
+    .filter(([key, _value]) => key in y)
+    .map(([key, value]) => [key, value, y[key]])
 }
 
-function entryNeedsDeepEquality(x: [string, any]): boolean {
-  return typeof x[1] === 'object';
+function removeUndefined<T>(x: T | undefined): x is T {
+  return x !== undefined
+}
+
+
+function getValuesThatAreObjects(x: {[key: string]: any}): {[key: string]: {[key: string]: any}} {
+  return Object.fromEntries(Object.entries(x).filter(entryValueIsObject));
+}
+
+function getValuesThatArePrimitives(o: {[key: string]: any}): {[key: string]: any} {
+  return Object.fromEntries(Object.entries(o).filter((entry) => !entryValueIsObject(entry)));
+}
+
+function entryValueIsObject(o: [string, any]): boolean {
+  return typeof o[1] === 'object' && !Array.isArray(o[1]) && o[1] !== null;
+}
+
+function objectSameKeys(x: {[key: string]: any}, y: {[key: string]: any}): boolean {
+  const xKeys = Object.keys(x);
+  const yKeys = Object.keys(y);
+  if (xKeys.length !== yKeys.length) {
+    return false;
+  }
+  const notInyKeys = (xKey: string) => yKeys.findIndex((yKey) => xKey === yKey) === -1;
+  return xKeys.findIndex(notInyKeys) === -1;
 }
 
 /**
@@ -99,4 +158,4 @@ function setDifference(x: string[], y: string[]): string[] {
   return x.filter((k) => !ySet.has(k));
 }
 
-export {setDifference, diffList, diff, diffPrimitive };
+export {setDifference, diffList, diff, diffPrimitive, objectSameKeys, IRRECONCILABLE };

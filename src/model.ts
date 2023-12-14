@@ -24,7 +24,15 @@ type NVRMesh = {
   name?: string,
   opacity?: number,
   visible?: boolean,
-  layers: NVRMeshLayer[],
+  rgba255?: number[],
+  /**
+   * Map keys must be some kind of unique ID. For example, given `NVRMeshLayer[]`:
+   *
+   * ```typescript
+   * (layers: NVRMeshLayer[]) => Object.fromEntries(layers.map((layer) => [layer.url, layer]))
+   * ```
+   */
+  layers?: {[key: string]: NVRMeshLayer},
   colorbarVisible?: boolean
 };
 
