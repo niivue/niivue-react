@@ -88,12 +88,16 @@ const NiivueCanvas: React.FC = ({meshes, volumes, options, onStart }: NiivueCanv
     const diffs = diffList(prevVolumes, nextVolumes);
     diffs.removed.forEach((vol) => nv.removeVolumeByUrl(vol.url));
     if (diffs.added.length > 0) {
-      // TODO probably need to reload Niivue entirely...
-      await nv.loadVolumes(diffs.added.map(sanitizeImage));
+      // loadVolumes also removes the currently loaded volumes, so we need to include them.
+      const notRemoved = (prevVolume) => diffs.removed.length === 0 ? true : !diffs.removed.find((removedVolume) => removedVolume === prevVolume);
+      const volumesToLoad = prevVolumes.filter(notRemoved).concat(diffs.added);
+      await nv.loadVolumes(volumesToLoad.map(sanitizeImage));
+      volumesToLoad.forEach(handleSpecialImageFields);
+    } else {
+      diffs.changed.map(sanitizeImage).forEach(applyVolumeChanges);
+      diffs.added.forEach(handleSpecialImageFields);
+      diffs.changed.forEach(handleSpecialImageFields);
     }
-    diffs.changed.map(sanitizeImage).forEach(applyVolumeChanges);
-    diffs.added.forEach(handleSpecialImageFields);
-    diffs.changed.forEach(handleSpecialImageFields);
   };
 
   const syncConfig = () => {
