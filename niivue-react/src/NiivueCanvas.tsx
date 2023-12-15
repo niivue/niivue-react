@@ -1,7 +1,7 @@
 import React, {useRef} from "react";
 import {NVRMesh, NVRVolume, NVROptions, HasUrlObject} from './model.ts';
 import {Niivue} from "@niivue/niivue";
-import {diffList} from "./diff.ts";
+import {Diff, diffList} from "./diff.ts";
 
 /**
  * Fields of a `NVRVolume` which must be handled in a special way.
@@ -47,9 +47,6 @@ const NiivueCanvas: React.FC = ({meshes, volumes, options, onStart }: NiivueCanv
   const nvRef = React.useRef(new Niivue());
   const [ready, setReady] = React.useState(false);
 
-  // const [prevMeshes, setPrevMeshes] = React.useState<NVRMesh[]>([]);
-  // const [prevVolumes, setPrevVolumes] = React.useState<NVRVolume[]>([]);
-  // const [prevConfig, setPrevConfig] = React.useState<NVRConfig>({});
   const prevVolumesRef = useRef<NVRVolume[]>([]);
   const prevOptionsRef = useRef<NVROptions>({});
 
@@ -88,17 +85,33 @@ const NiivueCanvas: React.FC = ({meshes, volumes, options, onStart }: NiivueCanv
     const diffs = diffList(prevVolumes, nextVolumes);
     diffs.removed.forEach((vol) => nv.removeVolumeByUrl(vol.url));
     if (diffs.added.length > 0) {
-      // loadVolumes also removes the currently loaded volumes, so we need to include them.
-      const notRemoved = (prevVolume) => diffs.removed.length === 0 ? true : !diffs.removed.find((removedVolume) => removedVolume === prevVolume);
-      const volumesToLoad = prevVolumes.filter(notRemoved).concat(diffs.added);
-      await nv.loadVolumes(volumesToLoad.map(sanitizeImage));
-      volumesToLoad.forEach(handleSpecialImageFields);
-    } else {
-      diffs.changed.map(sanitizeImage).forEach(applyVolumeChanges);
-      diffs.added.forEach(handleSpecialImageFields);
-      diffs.changed.forEach(handleSpecialImageFields);
+      await reloadVolumes(prevVolumes, diffs);
     }
+    mutateVolumeProperties(diffs.changed);
   };
+
+  /**
+   * Reload all previously loaded volumes as well as newly added volumes.
+   *
+   * @param prevVolumes previously loaded volumes
+   * @param diffs object containing new volumes you want to add
+   */
+  const reloadVolumes = async (prevVolumes: NVRVolume[], diffs: Diff<NVRVolume>) => {
+    // nv.loadVolumes also removes the currently loaded volumes,
+    // so we need to include them in the parameter to nv.loadVolumes
+    const notRemoved = (prevVolume) => diffs.removed.length === 0 ? true : !diffs.removed.find((removedVolume) => removedVolume === prevVolume);
+    const volumesToLoad = prevVolumes.filter(notRemoved).concat(diffs.added);
+    await nv.loadVolumes(volumesToLoad.map(sanitizeImage));
+    volumesToLoad.forEach(handleSpecialImageFields);
+  }
+
+  /**
+   * Apply a change of state to volumes which are already loaded to this Niivue instance.
+   */
+  const mutateVolumeProperties = (changes: HasUrlObject[]) => {
+    changes.map(sanitizeImage).forEach(applyVolumeChanges);
+    changes.forEach(handleSpecialImageFields);
+  }
 
   const syncConfig = () => {
     if (prevOptionsRef.current === options) {

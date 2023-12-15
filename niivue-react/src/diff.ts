@@ -165,4 +165,5 @@ function setDifference(x: string[], y: string[]): string[] {
   return x.filter((k) => !ySet.has(k));
 }
 
+export type { Diff };
 export {setDifference, diffList, diff, diffPrimitive, objectSameKeys, _Irreconcilable };
