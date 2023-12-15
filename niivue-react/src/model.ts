@@ -50,18 +50,37 @@ type NVRVolume = {
   cal_max?: number,
   trustCalMinMax?: boolean,
   visible?: boolean,
-  colorbarVisible?: boolean
+  colorbarVisible?: boolean,
+
+  /**
+   * Another loaded image which modulates this one.
+   */
+  modulationImageUrl?: string | null,
+  modulateAlpha?: number
 };
 
 /**
  * Niivue configurations.
+ *
+ * This is a subset of what is configurable via `nv.opts` U `nv`.
+ * There is some overlap with the options of
+ * [`NiiVueOptions`](https://github.com/niivue/niivue/blob/41b134123870fb0b69540a2d8155e75ec8e06339/src/niivue/index.ts#L239-L242),
+ * though some variable names are different.
  */
-type NVRConfig = {
+type NVROptions = {
+  // nv.opts.* fields
+  isColorbar?: boolean,
   isOrientCube?: boolean,
-  highResolutionCapable?: boolean,
+  isHighResolutionCapable?: boolean,
   meshThicknessOn2D?: number,
-  sliceType?: number,
-  sliceMM?: SLICE_TYPE
+  sliceType?: SLICE_TYPE,
+  isSliceMM?: boolean,
+  backColor?: number[],
+  isNearestInterpolation?: boolean,
+  multiplanarForceRender?: boolean,
+
+  // nv.* fields
+  overlayOutlineWidth?: number
 };
 
 /**
@@ -77,5 +96,5 @@ function canonicalizeNvrMesh(mesh: NVRMesh): HasUrlObject {
   return mesh;
 }
 
-export type {NVRMesh, NVRMeshLayer, NVRVolume, NVRConfig, HasUrlObject };
+export type {NVRMesh, NVRMeshLayer, NVRVolume, NVROptions, HasUrlObject };
 export {canonicalizeNvrMesh};

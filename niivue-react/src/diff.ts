@@ -147,7 +147,7 @@ function objectSameKeys(x: {[key: string]: any}, y: {[key: string]: any}): boole
  *               if `x[key]` does not deeply equal `y[key]`, then the returned object will have the
  *               value `y[key]` (_not_ the diff from `x[key]` to `y[key]`!)
  */
-function diffPrimitive<T extends {[key: string]: any}>(x: T, y: T): any {
+function diffPrimitive<T extends {[key: string]: any}>(x: T, y: T): {[key: string]: any} {
   const xKeys = Object.keys(x);
   const yKeys = Object.keys(y);
   const deletedKeys = setDifference(xKeys, yKeys);

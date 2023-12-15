@@ -1,2 +1,2 @@
-export { NVRMeshLayer, NVRMesh, NVRVolume } from './model';
+export type { NVRMeshLayer, NVRMesh, NVRVolume, NVROptions } from './model';
 export { NiivueCanvas } from './NiivueCanvas';
