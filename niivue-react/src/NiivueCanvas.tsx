@@ -43,6 +43,10 @@ type NiivueCanvasProps = {
  */
 const NiivueCanvas: React.FC = ({meshes, volumes, options, onStart }: NiivueCanvasProps) => {
 
+  if (meshes) {
+    throw new Error('NiivueCanvas does not yet support meshes!');
+  }
+
   const canvasRef = React.useRef();
   const nvRef = React.useRef(new Niivue());
   const [ready, setReady] = React.useState(false);

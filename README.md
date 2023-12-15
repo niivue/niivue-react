@@ -2,6 +2,8 @@
 
 INCOMPLETE WORK IN PROGRESS.
 
+What's working: volumes, Niivue options. What's not: meshes. (In theory, we're already 90% the way there with mesh support.)
+
 `niivue-react` is a package which provides `<NiivueCanvas />`, a React component wrapper around `Niivue`
 offering an immutable, declarative API.
 
