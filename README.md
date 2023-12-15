@@ -145,3 +145,32 @@ where `ventricle` is the volume we want to change.
 
 Please checkout [ModulateScalar.tsx](example/src/ModulateScalar.tsx), which is a rewrite of
 [Niivue's modulateScalar.html](https://github.com/niivue/niivue/blob/main/demos/features/modulateScalar.html).
+
+## Developing
+
+Install [`pnpm`](https://pnpm.io/installation), clone the repository, then run
+
+```shell
+cd niivue-react
+pnpm i
+pnpm test
+```
+
+To set up the example for development, run
+
+```shell
+cd example
+pnpm i
+pnpm link ../niivue-react
+pnpm run dev
+```
+
+## Code Organization
+
+- `model.ts`: defines types
+- `diff.ts`: helper functions for doing reconciliation from actual state to desired state.
+  It's analogous to React's internal "diff" algorithm which updates the virtual DOM.
+  Here, we do a diff between objects to compute which mutable setter functions of Niivue to call,
+  which in turn update the canvas. As a programming habit, the functions of `diff.ts` are pure functions.
+- `diff.test.ts`: tests and examples
+- `NiivueCanvas.tsx`: tight coupling between the functions of `diff.ts` to the React library.
