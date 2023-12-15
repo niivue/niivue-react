@@ -3,7 +3,7 @@
 INCOMPLETE WORK IN PROGRESS.
 
 `niivue-react` is a package which provides `<NiivueCanvas />`, a React component wrapper around `Niivue`
-providing an immutable, declarative API.
+offering an immutable, declarative API.
 
 ## Abstract
 
