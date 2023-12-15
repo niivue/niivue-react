@@ -1,12 +1,65 @@
 import { expect, test } from "vitest";
-import {diff, diffPrimitive, diffList, setDifference, objectSameKeys, IRRECONCILABLE} from "./diff";
+import {diff, diffPrimitive, diffList, setDifference, objectSameKeys, _Irreconcilable} from "./diff";
 
-// test.each([
-//   // TODO
-// ])("diffList(%o, %o) -> %o  // %s", (x, y, expected, _comment) => {
-//   expect(diffList(x, y)).toStrictEqual(expected);
-// });
+test('diffList', () => {
+  const before = {
+    wmLeft: { url: 'https://example.com/lh.wm.mz3', opacity: 0.5, layers: {thickness: {url: 'https://example.com/lh.cortical_thickness.mz3'}, curvature: {url: 'https://example.com/lh.wm.curvature.mz3'}} },
+    wmRight: { url: 'https://example.com/rh.wm.mz3', opacity: 0.5, layers: {thickness: {url: 'https://example.com/rh.cortical_thickness.mz3'}, curvature: {url: 'https://example.com/rh.wm.curvature.mz3'}} },
+    gm: { url: 'https://example.com/gm.mz3', opacity: 0.5, layers: {curvature: {url: 'https://example.com/gm.curvature.mz3'}} },
+    pial: { url: 'https://example.com/pial.mz3', opacity: 0.0, layers: {curvature: {url: 'https://example.com/pial.curvature.mz3'}}},
+    hippo: { url: 'https://example.com/hippocampus.mz3', opacity: 1.0, visible: true },
+    pons: {url: 'https://example.com/pons.mz3'}
+  };
 
+  const after = {
+    // set opacity of curvature to 0
+    wmLeft: {
+      url: 'https://example.com/lh.wm.mz3',
+      opacity: 0.5,
+      layers: {thickness: {url: 'https://example.com/lh.cortical_thickness.mz3'}, curvature: {url: 'https://example.com/lh.wm.curvature.mz3', opacity: 0.0}}
+    },
+    // not changed
+    wmRight: { url: 'https://example.com/rh.wm.mz3', opacity: 0.5, layers: {thickness: {url: 'https://example.com/rh.cortical_thickness.mz3'}, curvature: {url: 'https://example.com/rh.wm.curvature.mz3'}} },
+    // added another layer
+    gm: { url: 'https://example.com/gm.mz3', opacity: 0.5, layers: {curvature: {url: 'https://example.com/gm.curvature.mz3'}, sulcal_depth: {url: 'https://example.com/sulcal_depth.mz3', colormap: 'jet'}} },
+    // added property "visible: false" and deleted property "opacity"
+    pial: { url: 'https://example.com/pial.mz3', layers: {curvature: {url: 'https://example.com/pial.curvature.mz3'}}, visible: false },
+    // changed property "visible: false"
+    hippo: { url: 'https://example.com/hippocampus.mz3', opacity: 1.0, visible: false },
+    // new object
+    stem: {url: 'https://example.com/brainstem.mz3'}
+    // deleted pons
+  };
+
+  const expectedChanged = [
+    {
+      url: 'https://example.com/lh.wm.mz3',
+      layers: {curvature: {opacity: 0.0}}
+    },
+    {
+      url: 'https://example.com/pial.mz3',
+      visible: false,
+      opacity: undefined,
+    },
+    {
+      url: 'https://example.com/hippocampus.mz3',
+      visible: false
+    }
+  ];
+  const actual = diffList(Object.values(before), Object.values(after));
+
+  // gm must be reloaded because a layer was added, so it is added and removed
+  expect(actual.added).toContain(after.gm);
+  expect(actual.removed).toContain(before.gm);
+
+  expect(actual.added).toContain(after.stem);
+  expect(actual.removed).toContain(before.pons);
+  expect(actual.added).toHaveLength(2);
+  expect(actual.removed).toHaveLength(2);
+
+  expectedChanged.forEach((expected) => expect(actual.changed).toContainEqual(expected));
+  actual.changed.forEach((actual) => expect(expectedChanged))
+});
 
 test('diff should return {} when object not changed', () => {
   const layers = {thickness: {url: 'https://example.com/cortical_thickness.mz3'}, curvature: {url: 'https://example.com/curvature.mz3'}};
@@ -37,7 +90,7 @@ test.each([
     'Added layers'
   ],
 ])("diff(%o, %o)  // should be IRRECONCILABLE because %s", (x: object, y: object, _comment) => {
-  expect(diff(x, y)).toBe(IRRECONCILABLE);
+  expect(diff(x, y)).toBe(_Irreconcilable);
 });
 
 test.each([
@@ -92,4 +145,3 @@ test.each([
 ])("objectSameKeys(%o, %o) -> %o", (x, y, expected) => {
   expect(objectSameKeys(x, y)).toBe(expected);
 });
-

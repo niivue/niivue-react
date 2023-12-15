@@ -3,8 +3,7 @@ type HasUrlObject = {[key: string]: any, url: string};
 /**
  * A special value which indicates that the difference between two objects is Irreconcilable.
  */
-const IRRECONCILABLE = {};
-Object.freeze(IRRECONCILABLE);
+const _Irreconcilable = {_reconcilable: false};
 
 /**
  * Difference between two lists of objects.
@@ -15,33 +14,46 @@ type Diff<T extends HasUrlObject> = {
   changed: HasUrlObject[]
 }
 
+/**
+ * Calls `diff` on all pairs in `x` and `y` which have the same `url`.
+ * In case where a result of `diff` is "irreconcilable" (in the context
+ * of Niivue, this means there are no functions to apply the change
+ * so the data must be removed then reloaded) the URL will appear in both
+ * `added` and `removed`, not `changed`.
+ */
 function diffList<T extends HasUrlObject>(x: T[], y: T[]): Diff<T> {
   const xUrls = x.map(v => v.url);
   const yUrls = y.map(v => v.url);
 
-  const addedUrls = setDifference(xUrls, yUrls);
-  const removedUrls = setDifference(yUrls, xUrls);
+  const removedUrls = setDifference(xUrls, yUrls);
+  const addedUrls = setDifference(yUrls, xUrls);
 
-  const changes = zipObjectsOnUrl(x, y)
+  const changeEntries = zipObjectsOnUrl(x, y)
     .map(([xValue, yValue]): [string, any] => [xValue.url, diff(xValue, yValue)])
-    .filter(([url, d]) => !!d)
-    .map(([url, d]): HasUrlObject => {return {...d, url}});
+    .filter(isNotEmptyEntry);
+
+  const changedEntries = changeEntries.filter(([_url, diffResult]) => diffResult !== _Irreconcilable);
+
+  // if a change is considered "irreconcilable" that means we must reload the data,
+  // which can be done by removing then adding.
+  const mustReloadUrls = changeEntries
+    .filter(([_url, diffResult]) => diffResult === _Irreconcilable)
+    .map(([url, _d]) => url);
 
   return {
-    added: y.filter((v) => addedUrls.find((url) => url === v.url)),
-    removed: x.filter((v) => removedUrls.find((url) => url === v.url)),
-    changed: changes
+    added: y.filter((v) => addedUrls.concat(mustReloadUrls).find((url) => url === v.url)),
+    removed: x.filter((v) => removedUrls.concat(mustReloadUrls).find((url) => url === v.url)),
+    changed: changedEntries.map(([url, d]): HasUrlObject => {return {...d, url}})
   };
-
 }
 
 function zipObjectsOnUrl<T extends HasUrlObject>(x: T[], y: T[]): [T, T][] {
   const yMap = Object.fromEntries(y.map(toUrlEntry));
-  return x.map(v => [v, yMap[v.url]]);
+  return x.map((v): [T, T] => [v, yMap[v.url]]).filter(isNotEmptyEntry);
 }
 
-function toUrlEntry<T extends HasUrlObject>(x: T): [string, T] {
-  return [x.url, x]
+function toUrlEntry<T extends HasUrlObject>(o: T): [string, T] {
+  return [o.url, o]
 }
 
 /**
@@ -57,14 +69,14 @@ function diff<T extends {[key: string]: any}>(x: T, y: T): any {
 
   // e.g. x = {}, y = {layers: {}}
   if (!objectSameKeys(xObjects, yObjects)) {
-    return IRRECONCILABLE;
+    return _Irreconcilable;
   }
 
   const zip = zipObjects(xObjects, yObjects);
 
   // e.g. x = {layers: {one: 1}}, y = {layers: {one: 1, two: 2}}
   if (zip.findIndex(([_key, xObject, yObject]) => !objectSameKeys(xObject, yObject)) !== -1) {
-    return IRRECONCILABLE;
+    return _Irreconcilable;
   }
 
   const objectDiffEntries = zip
@@ -91,7 +103,7 @@ function diff<T extends {[key: string]: any}>(x: T, y: T): any {
 }
 
 function isNotEmptyEntry(t: [any, Object]): boolean {
-  return Object.keys(t[1]).length !== 0;
+  return t[1] && Object.keys(t[1]).length !== 0;
 }
 
 function zipObjects<X, Y>(x: {[key: string]: X}, y: {[key: string]: Y}): [string, X, Y][] {
@@ -99,11 +111,6 @@ function zipObjects<X, Y>(x: {[key: string]: X}, y: {[key: string]: Y}): [string
     .filter(([key, _value]) => key in y)
     .map(([key, value]) => [key, value, y[key]])
 }
-
-function removeUndefined<T>(x: T | undefined): x is T {
-  return x !== undefined
-}
-
 
 function getValuesThatAreObjects(x: {[key: string]: any}): {[key: string]: {[key: string]: any}} {
   return Object.fromEntries(Object.entries(x).filter(entryValueIsObject));
@@ -158,4 +165,4 @@ function setDifference(x: string[], y: string[]): string[] {
   return x.filter((k) => !ySet.has(k));
 }
 
-export {setDifference, diffList, diff, diffPrimitive, objectSameKeys, IRRECONCILABLE };
+export {setDifference, diffList, diff, diffPrimitive, objectSameKeys, _Irreconcilable };
