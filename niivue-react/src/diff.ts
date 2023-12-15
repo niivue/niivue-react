@@ -1,4 +1,4 @@
-type HasUrlObject = {[key: string]: any, url: string};
+import {HasUrlObject} from "./model.ts";
 
 /**
  * A special value which indicates that the difference between two objects is Irreconcilable.

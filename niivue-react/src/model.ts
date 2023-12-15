@@ -1,5 +1,7 @@
 import {SLICE_TYPE} from "@niivue/niivue";
 
+type HasUrlObject = {[key: string]: any, url: string};
+
 /**
  * A surface overlay (e.g. cortical thickness) in Niivue.
  */
@@ -62,4 +64,18 @@ type NVRConfig = {
   sliceMM?: SLICE_TYPE
 };
 
-export type {NVRMesh, NVRVolume, NVRConfig};
+/**
+ * Converts to `LoadFromUrlParams` (which is not exported by niivue).
+ */
+function canonicalizeNvrMesh(mesh: NVRMesh): HasUrlObject {
+  if (mesh.layers) {
+    return {
+      ...mesh,
+      layers: Object.values(mesh.layers)
+    };
+  }
+  return mesh;
+}
+
+export type {NVRMesh, NVRMeshLayer, NVRVolume, NVRConfig, HasUrlObject };
+export {canonicalizeNvrMesh};

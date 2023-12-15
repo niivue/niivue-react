@@ -9,6 +9,7 @@
     "fmt": "biome format --write src/"
   },
   "devDependencies": {
+    "@types/react": "^18.2.45",
     "biome": "^0.3.3",
     "vitest": "^1.0.4"
   },
