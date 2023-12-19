@@ -176,3 +176,6 @@ dist
 
 .vite
 .pnpm
+
+# playwright
+test-results/

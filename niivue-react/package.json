@@ -1,16 +1,19 @@
 {
   "name": "niivue-react",
   "module": "src/index.ts",
-  "type": "module",
   "scripts": {
     "test": "vitest",
-    "fix": "biome check --apply src/",
-    "fix:unsafe": "biome check --apply-unsafe src/",
-    "fmt": "biome format --write src/"
+    "test:playwright": "playwright test -c playwright-ct.config.ts",
+    "fix": "biome check --apply .",
+    "fix:unsafe": "biome check --apply-unsafe .",
+    "fmt": "biome format --write ."
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.4.1",
+    "@playwright/experimental-ct-react": "^1.40.1",
+    "@types/node": "^20.10.5",
     "@types/react": "^18.2.45",
-    "biome": "^0.3.3",
+    "react-dom": "^18.2.0",
     "vitest": "^1.0.4"
   },
   "peerDependencies": {

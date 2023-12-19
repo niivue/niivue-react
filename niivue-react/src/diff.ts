@@ -1,18 +1,18 @@
-import {HasUrlObject} from "./model.ts";
+import { HasUrlObject } from "./model.ts";
 
 /**
  * A special value which indicates that the difference between two objects is Irreconcilable.
  */
-const _Irreconcilable = {_reconcilable: false};
+const _Irreconcilable = { _reconcilable: false };
 
 /**
  * Difference between two lists of objects.
  */
 type Diff<T extends HasUrlObject> = {
-  added: T[],
-  removed: T[],
-  changed: HasUrlObject[]
-}
+  added: T[];
+  removed: T[];
+  changed: HasUrlObject[];
+};
 
 /**
  * Calls `diff` on all pairs in `x` and `y` which have the same `url`.
@@ -22,17 +22,22 @@ type Diff<T extends HasUrlObject> = {
  * `added` and `removed`, not `changed`.
  */
 function diffList<T extends HasUrlObject>(x: T[], y: T[]): Diff<T> {
-  const xUrls = x.map(v => v.url);
-  const yUrls = y.map(v => v.url);
+  const xUrls = x.map((v) => v.url);
+  const yUrls = y.map((v) => v.url);
 
   const removedUrls = setDifference(xUrls, yUrls);
   const addedUrls = setDifference(yUrls, xUrls);
 
   const changeEntries = zipObjectsOnUrl(x, y)
-    .map(([xValue, yValue]): [string, any] => [xValue.url, diff(xValue, yValue)])
+    .map(([xValue, yValue]): [string, any] => [
+      xValue.url,
+      diff(xValue, yValue),
+    ])
     .filter(isNotEmptyEntry);
 
-  const changedEntries = changeEntries.filter(([_url, diffResult]) => diffResult !== _Irreconcilable);
+  const changedEntries = changeEntries.filter(
+    ([_url, diffResult]) => diffResult !== _Irreconcilable,
+  );
 
   // if a change is considered "irreconcilable" that means we must reload the data,
   // which can be done by removing then adding.
@@ -41,9 +46,15 @@ function diffList<T extends HasUrlObject>(x: T[], y: T[]): Diff<T> {
     .map(([url, _d]) => url);
 
   return {
-    added: y.filter((v) => addedUrls.concat(mustReloadUrls).find((url) => url === v.url)),
-    removed: x.filter((v) => removedUrls.concat(mustReloadUrls).find((url) => url === v.url)),
-    changed: changedEntries.map(([url, d]): HasUrlObject => {return {...d, url}})
+    added: y.filter((v) =>
+      addedUrls.concat(mustReloadUrls).find((url) => url === v.url),
+    ),
+    removed: x.filter((v) =>
+      removedUrls.concat(mustReloadUrls).find((url) => url === v.url),
+    ),
+    changed: changedEntries.map(([url, d]): HasUrlObject => {
+      return { ...d, url };
+    }),
   };
 }
 
@@ -53,7 +64,7 @@ function zipObjectsOnUrl<T extends HasUrlObject>(x: T[], y: T[]): [T, T][] {
 }
 
 function toUrlEntry<T extends HasUrlObject>(o: T): [string, T] {
-  return [o.url, o]
+  return [o.url, o];
 }
 
 /**
@@ -63,7 +74,7 @@ function toUrlEntry<T extends HasUrlObject>(o: T): [string, T] {
  * - if `x[key]` and `y[key]` have different keys: returned value is `🎆IRRECONCILABLE`.
  * - if `x[key]` and `y[key]` have different values: call `diffPrimitive`
  */
-function diff<T extends {[key: string]: any}>(x: T, y: T): any {
+function diff<T extends { [key: string]: any }>(x: T, y: T): any {
   const xObjects = getValuesThatAreObjects(x);
   const yObjects = getValuesThatAreObjects(y);
 
@@ -75,14 +86,21 @@ function diff<T extends {[key: string]: any}>(x: T, y: T): any {
   const zip = zipObjects(xObjects, yObjects);
 
   // e.g. x = {layers: {one: 1}}, y = {layers: {one: 1, two: 2}}
-  if (zip.findIndex(([_key, xObject, yObject]) => !objectSameKeys(xObject, yObject)) !== -1) {
+  if (
+    zip.findIndex(
+      ([_key, xObject, yObject]) => !objectSameKeys(xObject, yObject),
+    ) !== -1
+  ) {
     return _Irreconcilable;
   }
 
   const objectDiffEntries = zip
     .map(([outerKey, xObject, yObject]): [string, Object] => {
       const diffEntries = zipObjects(xObject, yObject)
-        .map(([innerKey, xValue, yValue]): [string, any] => [innerKey, diffPrimitive(xValue, yValue)])
+        .map(([innerKey, xValue, yValue]): [string, any] => [
+          innerKey,
+          diffPrimitive(xValue, yValue),
+        ])
         .filter(isNotEmptyEntry);
       return [outerKey, Object.fromEntries(diffEntries)];
     })
@@ -93,12 +111,12 @@ function diff<T extends {[key: string]: any}>(x: T, y: T): any {
   // compute diff of primitive values
   const primitiveDiff = diffPrimitive(
     getValuesThatArePrimitives(x),
-    getValuesThatArePrimitives(y)
+    getValuesThatArePrimitives(y),
   );
 
   return {
     ...Object.fromEntries(objectDiffEntries),
-    ...primitiveDiff
+    ...primitiveDiff,
   };
 }
 
@@ -106,31 +124,44 @@ function isNotEmptyEntry(t: [any, Object]): boolean {
   return t[1] && Object.keys(t[1]).length !== 0;
 }
 
-function zipObjects<X, Y>(x: {[key: string]: X}, y: {[key: string]: Y}): [string, X, Y][] {
+function zipObjects<X, Y>(
+  x: { [key: string]: X },
+  y: { [key: string]: Y },
+): [string, X, Y][] {
   return Object.entries(x)
     .filter(([key, _value]) => key in y)
-    .map(([key, value]) => [key, value, y[key]])
+    .map(([key, value]) => [key, value, y[key]]);
 }
 
-function getValuesThatAreObjects(x: {[key: string]: any}): {[key: string]: {[key: string]: any}} {
+function getValuesThatAreObjects(x: { [key: string]: any }): {
+  [key: string]: { [key: string]: any };
+} {
   return Object.fromEntries(Object.entries(x).filter(entryValueIsObject));
 }
 
-function getValuesThatArePrimitives(o: {[key: string]: any}): {[key: string]: any} {
-  return Object.fromEntries(Object.entries(o).filter((entry) => !entryValueIsObject(entry)));
+function getValuesThatArePrimitives(o: { [key: string]: any }): {
+  [key: string]: any;
+} {
+  return Object.fromEntries(
+    Object.entries(o).filter((entry) => !entryValueIsObject(entry)),
+  );
 }
 
 function entryValueIsObject(o: [string, any]): boolean {
-  return typeof o[1] === 'object' && !Array.isArray(o[1]) && o[1] !== null;
+  return typeof o[1] === "object" && !Array.isArray(o[1]) && o[1] !== null;
 }
 
-function objectSameKeys(x: {[key: string]: any}, y: {[key: string]: any}): boolean {
+function objectSameKeys(
+  x: { [key: string]: any },
+  y: { [key: string]: any },
+): boolean {
   const xKeys = Object.keys(x);
   const yKeys = Object.keys(y);
   if (xKeys.length !== yKeys.length) {
     return false;
   }
-  const notInyKeys = (xKey: string) => yKeys.findIndex((yKey) => xKey === yKey) === -1;
+  const notInyKeys = (xKey: string) =>
+    yKeys.findIndex((yKey) => xKey === yKey) === -1;
   return xKeys.findIndex(notInyKeys) === -1;
 }
 
@@ -147,7 +178,10 @@ function objectSameKeys(x: {[key: string]: any}, y: {[key: string]: any}): boole
  *               if `x[key]` does not deeply equal `y[key]`, then the returned object will have the
  *               value `y[key]` (_not_ the diff from `x[key]` to `y[key]`!)
  */
-function diffPrimitive<T extends {[key: string]: any}>(x: T, y: T): {[key: string]: any} {
+function diffPrimitive<T extends { [key: string]: any }>(
+  x: T,
+  y: T,
+): { [key: string]: any } {
   const xKeys = Object.keys(x);
   const yKeys = Object.keys(y);
   const deletedKeys = setDifference(xKeys, yKeys);
@@ -156,7 +190,7 @@ function diffPrimitive<T extends {[key: string]: any}>(x: T, y: T): {[key: strin
   const diffKeys = addedKeys.concat(changedKeys);
   return {
     ...Object.fromEntries(deletedKeys.map((key) => [key, undefined])),
-    ...Object.fromEntries(diffKeys.map((key) => [key, y[key]]))
+    ...Object.fromEntries(diffKeys.map((key) => [key, y[key]])),
   };
 }
 
@@ -166,4 +200,11 @@ function setDifference(x: string[], y: string[]): string[] {
 }
 
 export type { Diff };
-export {setDifference, diffList, diff, diffPrimitive, objectSameKeys, _Irreconcilable };
+export {
+  setDifference,
+  diffList,
+  diff,
+  diffPrimitive,
+  objectSameKeys,
+  _Irreconcilable,
+};
