@@ -43,7 +43,7 @@ type NVRMesh = {
  */
 type NVRVolume = {
   url: string;
-  opacity?: boolean;
+  opacity?: number;
   colormap?: string;
   colormapNegative?: string;
   cal_min?: number;
