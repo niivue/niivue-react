@@ -38,7 +38,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'cd ../examples && npm run dev',
-    url: 'http://localhost:5173'
-  }
+    command: "cd ../examples && npm run dev",
+    url: "http://localhost:5173",
+  },
 });

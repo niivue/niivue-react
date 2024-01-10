@@ -52,7 +52,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   volumes,
   options,
   onStart,
-  onSync
+  onSync,
 }: NiivueCanvasProps) => {
   if (meshes) {
     throw new Error("NiivueCanvas does not yet support meshes!");

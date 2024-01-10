@@ -1,53 +1,98 @@
-import React, {useState, useEffect, useRef} from "react";
-import {NiivueCanvas, NVRMeshLayer} from "../src";
+import React, { useState, useRef } from "react";
+import { NiivueCanvas } from "../src";
 import { NVRMesh, NVROptions, NVRVolume } from "../src";
-import {Niivue, NVImage, NVMesh} from "@niivue/niivue";
-
-/**
- * Data from a Niivue object, as a plain object. This is done to work around limitations
- * of sharing objects between a playwright-controlled browser and tests running in node.js
- */
-
-type NiivueRealState = {
-  nv: Niivue,
-  nvVolumes: NVImage[],
-  nvMeshes: NVMesh[],
-}
+import { Niivue, NVImage, NVMesh } from "@niivue/niivue";
 
 type NiivueCanvasForTestProps = {
-  // meshes?: NVRMesh[],
-  // options?: NVROptions,
   initialVolumes?: NVRVolume[];
-  // onSync: (nv: Niivue) => void;
-  testingSteps: ((beforeState: NiivueRealState) => NVRVolume[] | NVRMesh[] | NVROptions | null)[];
 };
 
 /**
- * A hacky testing harness for `NiivueCanvas` satisfying the limitations described here:
- * https://playwright.dev/docs/test-components
+ * A subset of the fields of Niivue which are copyable.
+ */
+type NiivueData = {
+  volumes: NVImage[]
+}
+
+/**
+ * Testing harness for `NiivueCanvas` which provides:
  *
- * @param initialVolumes initial value for `volumes`
- * @param testingActions TODO TODO TODO
+ * - input elements that Playwright can use for calling state-setting functions
+ * - text elements that Playwright can use to inspect the current state of the Niivue object instance
  */
 const NiivueCanvasForTest: React.FC<NiivueCanvasForTestProps> = ({
   initialVolumes,
 }: NiivueCanvasForTestProps) => {
-  const [volumes, setVolumes] = useState<NVRVolume[]>(initialVolumes || []);
+  const [volumes, setVolumes] = useState<NVRVolume[] | undefined>(
+    initialVolumes,
+  );
+  // const [meshes, setMeshes] = useState<NVRVolume[]>([]);
+  const [options, setOptions] = useState<NVROptions>({});
+  const [volumesInputString, setVolumesInputString] = useState("");
+  // const [realNv, setRealNv] = useState<Niivue | undefined>();
+  const [nv, setNv] = useState<NiivueData | undefined>();
+  const realNvRef = useRef<Niivue | undefined>();
 
-  const onSync = () => {
-
+  const assertNvRefDoesNotChange = (nv: Niivue) => {
+    if (realNvRef.current === undefined) {
+      realNvRef.current = nv;
+      return;
+    }
+    if (realNvRef.current !== nv) {
+      throw Error(
+        "Niivue object reference was changed. You shouldn't do this (bad performance...)",
+      );
+    }
   }
+
+  const onSync = (givenNv: Niivue) => {
+    assertNvRefDoesNotChange(givenNv);
+    // we can't just use givenNv/realNv as nv because React won't rerender when it mutates
+    setNv({volumes: givenNv.volumes});
+  };
 
   return (
     <>
-      <NiivueCanvas
-        volumes={volumes}
-        onSync={onSync}
-        // onStart={}
-      />
+      <div>
+        <NiivueCanvas
+          volumes={volumes}
+          // meshes={meshes}
+          options={options}
+          onSync={onSync}
+        />
+      </div>
+      <div>
+        <input
+          data-testid="volumes-string"
+          value={volumesInputString}
+          onChange={(e) => setVolumesInputString(e.target.value)}
+        />
+        <button
+          data-testid="set-volumes"
+          onClick={() => setVolumes(JSON.parse(volumesInputString))}
+        />
+
+        {nv && (
+          <div data-testid="nv-internal-state">
+            <span data-testid="nv-volume-urls">
+              {nv.volumes.map((v) => v.url).join(",")}
+            </span>
+            <ol data-testid="nv-volume-list">
+              {nv.volumes.map((volume) => (
+                <li
+                  title="nv-volume-data"
+                  data-testid={`nv-volume-${volume.id}`}
+                >
+                  {JSON.stringify(volume)}
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </div>
     </>
   );
 };
 
-export type { NiivueRealState, NiivueCanvasForTestProps };
+export type { NiivueCanvasForTestProps };
 export { NiivueCanvasForTest };
