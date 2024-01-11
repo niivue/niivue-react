@@ -41,8 +41,9 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd niivue-react
-        pnpm install --strict-peer-dependencies --frozen-lockfile
+        pnpm install --recursive --strict-peer-dependencies --frozen-lockfile
+        cd examples
+        pnpm link ../niivue-react
     - name: Unit tests
       run: |
         cd niivue-react
