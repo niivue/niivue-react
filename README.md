@@ -1,11 +1,13 @@
 # niivue-react
 
-INCOMPLETE WORK IN PROGRESS.
-
-What's working: volumes, Niivue options. What's not: meshes. (In theory, we're already 90% the way there with mesh support.)
-
 `niivue-react` is a package which provides `<NiivueCanvas />`, a React component wrapper around `Niivue`
 offering an immutable, declarative API.
+
+## :construction: WORK IN PROGRESS :construction:
+
+- What's working: volumes, Niivue options.
+- What's tested: volumes
+- What's not: meshes. (In theory, we're already 90% the way there with mesh support.)
 
 ## Abstract
 
@@ -148,31 +150,6 @@ where `ventricle` is the volume we want to change.
 Please checkout [ModulateScalar.tsx](example/src/ModulateScalar.tsx), which is a rewrite of
 [Niivue's modulateScalar.html](https://github.com/niivue/niivue/blob/main/demos/features/modulateScalar.html).
 
-## Developing
+## Development
 
-Install [`pnpm`](https://pnpm.io/installation), clone the repository, then run
-
-```shell
-cd niivue-react
-pnpm i
-pnpm test
-```
-
-To set up the example for development, run
-
-```shell
-cd example
-pnpm i
-pnpm link ../niivue-react
-pnpm run dev
-```
-
-## Code Organization
-
-- `model.ts`: defines types
-- `diff.ts`: helper functions for doing reconciliation from actual state to desired state.
-  It's analogous to React's internal "diff" algorithm which updates the virtual DOM.
-  Here, we do a diff between objects to compute which mutable setter functions of Niivue to call,
-  which in turn update the canvas. As a programming habit, the functions of `diff.ts` are pure functions.
-- `diff.test.ts`: tests and examples
-- `NiivueCanvas.tsx`: tight coupling between the functions of `diff.ts` to the React library.
+See [DEVELOP.md](./DEVELOP.md)
