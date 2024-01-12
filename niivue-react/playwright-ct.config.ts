@@ -32,8 +32,8 @@ export default defineConfig({
   projects: [
     // NOTE: our goal here isn't to extensively test Niivue, all we need is a working WebGL2!
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
     },
   ],
 
