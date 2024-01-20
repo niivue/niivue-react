@@ -1,4 +1,4 @@
-import {NiivueCanvas, NVROptions, NVRVolume} from "niivue-react";
+import {NiivueCanvas, NVROptions, NVRVolume} from "../src";
 
 import {useImmer} from "use-immer";
 import React from "react";

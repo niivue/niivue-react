@@ -199,6 +199,10 @@ function setDifference(x: string[], y: string[]): string[] {
   return x.filter((k) => !ySet.has(k));
 }
 
+function noChange(d: Diff<any>): boolean {
+  return d.changed.length + d.added.length + d.removed.length === 0;
+}
+
 export type { Diff };
 export {
   setDifference,
@@ -206,5 +210,6 @@ export {
   diff,
   diffPrimitive,
   objectSameKeys,
+  noChange,
   _Irreconcilable,
 };

@@ -1,4 +1,4 @@
-import { defineConfig, devices } from "@playwright/experimental-ct-react";
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -26,6 +26,8 @@ export default defineConfig({
 
     /* Port to use for Playwright component endpoint. */
     ctPort: 3100,
+
+    baseURL: "http://localhost:5173"
   },
 
   /* Configure projects for major browsers */
@@ -38,7 +40,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "cd ../examples && npm run dev",
+    command: "npm start",
     url: "http://localhost:5173",
   },
 });

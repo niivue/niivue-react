@@ -1,13 +1,9 @@
-html {
-  height: auto;
-  min-height: 100%;
-}
-body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-}
-#root {
+/**
+ * Mostly a copy of
+ * https://github.com/niivue/niivue/blob/e7fee2f9b8ee283f201ccd8d09ea0d77c749db7a/src/niivue.css
+ */
+
+.root {
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -19,25 +15,25 @@ body {
   color: white;
   background: #202020;
 }
-header {
+.root header {
   margin: 10px;
 }
-main {
+.root main {
   flex: 1;
   background: #000000;
   position: relative;
 }
-footer {
+.root footer {
   margin: 10px;
 }
-canvas {
+.root canvas {
   position: absolute;
   cursor: crosshair;
 }
-canvas:focus {
+.root canvas:focus {
   outline: 0px;
 }
-div {
+.root div {
   display: table-row;
   background-color: blue;
 }

@@ -1,10 +1,10 @@
-import {NiivueCanvas, NVROptions, NVRVolume} from "niivue-react";
+import {NiivueCanvas, NVROptions, NVRVolume} from "../../src";
 
 import {useImmer} from "use-immer";
 import {Niivue, SLICE_TYPE} from "@niivue/niivue";
 import React, {useState} from "react";
 
-import './styles.css';
+import styles from './upstream.module.css';
 
 const FIXED_OPTIONS: NVROptions = {
   isColorbar: true,
@@ -18,21 +18,21 @@ const ModulateScalar = () => {
   const [crosshairLocation, setCrosshairLocation] = useState('');
   const [volumes, setVolumes] = useImmer<{ [key: string]: NVRVolume }>({
     func: {
-      url: "../images/mean_func.nii.gz",
+      url: "/images/mean_func.nii.gz",
       opacity: 1,
       colormap: "gray",
     },
     cope: {
-      url: "../images/cope1.nii.gz",
+      url: "/images/cope1.nii.gz",
       colormap: "winter",
       opacity: 1,
       cal_min: 0.0,
       cal_max: 100,
-      modulationImageUrl: "../images/tstat1.nii.gz",
+      modulationImageUrl: "/images/tstat1.nii.gz",
       modulateAlpha: 1
     },
     tstat: {
-      url: "../images/tstat1.nii.gz",
+      url: "/images/tstat1.nii.gz",
       opacity: 0,
       colormap: "warm",
       cal_min: 0,
@@ -94,7 +94,7 @@ const ModulateScalar = () => {
   };
 
   return (
-    <>
+    <div className={styles.root}>
       <header>
         <label htmlFor="mode">Display:</label>
         <select name="mode" id="mode" value={getMode()} onChange={onModeSelected}>
@@ -138,7 +138,7 @@ const ModulateScalar = () => {
         <NiivueCanvas volumes={Object.values(volumes)} options={FIXED_OPTIONS} onStart={configNiivue} />
       </main>
       <footer>{crosshairLocation.string}</footer>
-    </>
+    </div>
   )
 }
 

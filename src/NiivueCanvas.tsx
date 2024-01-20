@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { NVRMesh, NVRVolume, NVROptions, HasUrlObject } from "./model.ts";
 import { Niivue } from "@niivue/niivue";
-import { Diff, diffList } from "./diff.ts";
+import { Diff, diffList, noChange } from "./diff.ts";
 
 /**
  * Fields of a `NVRVolume` which must be handled in a special way.
@@ -26,7 +26,7 @@ type NiivueCanvasProps = {
   volumes?: NVRVolume[];
   options?: NVROptions;
   onStart?: (nv: Niivue) => void;
-  onSync?: (nv: Niivue) => void;
+  onChanged?: (nv: Niivue) => void;
 };
 
 /**
@@ -44,15 +44,14 @@ type NiivueCanvasProps = {
  *
  *                N.B. `onStart` is called after attaching to the canvas, but before
  *                data are loaded.
- * @param onSync Called each time after files are done loading.
- *               Primarily used for testing.
+ * @param onChanged Called each time a mutation happens to the Niivue instance.
  */
 const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   meshes,
   volumes,
   options,
   onStart,
-  onSync,
+  onChanged,
 }: NiivueCanvasProps) => {
   if (meshes) {
     throw new Error("NiivueCanvas does not yet support meshes!");
@@ -85,25 +84,35 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   const syncStateWithProps = async () => {
     // note: for efficiency, we could mutate nv's fields directly then call nv.updateGLVolume...
     // but that would be very brittle.
-    syncConfig();
-    await Promise.all([syncVolumes()]);
-    onSync && onSync(nv);
+    const configChanged = syncConfig();
+    const [volumesChanged] = await Promise.all([syncVolumes()]);
+    onChanged && (configChanged || volumesChanged) && onChanged(nv);
   };
 
-  const syncVolumes = async () => {
+  /**
+   * Sync the value of `volumes` with the Niivue instance.
+   *
+   * @returns true if `volumes` was changed
+   */
+  const syncVolumes = async (): boolean => {
     if (prevVolumesRef.current === volumes) {
-      return;
+      return false;
     }
     const prevVolumes = prevVolumesRef.current;
     const nextVolumes = volumes || [];
     prevVolumesRef.current = nextVolumes;
 
     const diffs = diffList(prevVolumes, nextVolumes);
+    if (noChange(diffs)) {
+      return false;
+    }
+
     diffs.removed.forEach((vol) => nv.removeVolumeByUrl(vol.url));
     if (diffs.added.length > 0) {
       await reloadVolumes(prevVolumes, diffs);
     }
     mutateVolumeProperties(diffs.changed);
+    return true;
   };
 
   /**
@@ -135,12 +144,21 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     changes.forEach(handleSpecialImageFields);
   };
 
-  const syncConfig = () => {
+  /**
+   * Sync the value of `options` with the Niivue instance.
+   *
+   * @returns true if `options` was changed
+   */
+  const syncConfig = (): boolean => {
     if (prevOptionsRef.current === options) {
-      return;
+      return false;
     }
     const nextConfig = options === undefined ? {} : options;
     prevOptionsRef.current = nextConfig;
+
+    if (Object.keys(nextConfig).length === 0) {
+      return false;
+    }
 
     // some options e.g. isSliceMM have setter methods, but not all of them do e.g. isOrientCube.
     // for efficiency, we mutate nv.opts and then call nv.updateGLVolume() directly.
@@ -159,6 +177,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
       }
     });
     nv.updateGLVolume();
+    return true;
   };
 
   const applyVolumeChanges = (changes: NVRVolume) => {

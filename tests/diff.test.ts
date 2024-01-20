@@ -6,7 +6,10 @@ import {
   setDifference,
   objectSameKeys,
   _Irreconcilable,
+  noChange,
+  Diff,
 } from "../src/diff.ts";
+import { HasUrlObject } from "../src/model.ts";
 
 test("diffList", () => {
   const before = {
@@ -313,4 +316,34 @@ test.each([
   [{ a: "apple", b: "bear", c: "cranberry" }, { b: "bear", a: "apple" }, false],
 ])("objectSameKeys(%o, %o) -> %o", (x, y, expected) => {
   expect(objectSameKeys(x, y)).toBe(expected);
+});
+
+test.each([
+  [{ added: [], removed: [], changed: [] }, true],
+  [
+    {
+      added: [{ url: "https://example.com", a: "b" }],
+      removed: [],
+      changed: [],
+    },
+    false,
+  ],
+  [
+    {
+      added: [],
+      removed: [{ url: "https://example.com", a: "b" }],
+      changed: [],
+    },
+    false,
+  ],
+  [
+    {
+      added: [],
+      removed: [],
+      changed: [{ url: "https://example.com", a: "b" }],
+    },
+    false,
+  ],
+])("noChange(%o) -> %o", (diff: Diff<HasUrlObject>, expected: boolean) => {
+  expect(noChange(diff)).toBe(expected);
 });

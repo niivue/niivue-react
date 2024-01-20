@@ -10,15 +10,6 @@ Install [`pnpm`](https://pnpm.io/installation), clone the repository, then run
 pnpm i
 ```
 
-To set up the example for development, run
-
-```shell
-cd examples
-pnpm i
-pnpm link ../niivue-react
-pnpm run dev
-```
-
 ## Code Organization
 
 - `model.ts`: defines types
@@ -28,7 +19,7 @@ pnpm run dev
   which in turn update the canvas. As a programming habit, the functions of `diff.ts` are pure functions.
 - `diff.test.ts`: tests and examples
 - `NiivueCanvas.tsx`: defines `<NiivueCanvas />`; tight coupling between the functions of `diff.ts` to the React library and Niivue.
-- `playwright/NiivueCanvas.story.tsx`: a wrapper around `<NiivueCanvas />` to enable Playwright component testing.
+- `playwright/NiivueCanvasForPlaywrightTest.tsx`: a wrapper around `<NiivueCanvas />` to enable Playwright component testing.
 - `tests/playwright/NiivueCanvas.test.tsx`: tests for `<NiivueCanvas />` using Playwright
 
 ## TODO
