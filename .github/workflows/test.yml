@@ -12,20 +12,17 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        node_version: [ 20.11.0, 21.5.0 ]
     steps:
     - name: Checkout
       uses: actions/checkout@v4
     - name: Install Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node_version }}
+        node-version: 21.6.0
     - uses: pnpm/action-setup@v2
       name: Install pnpm
       with:
-        version: 8.14.0
+        version: 8.14.1
         run_install: false
     - name: Get pnpm store directory
       id: pnpm_info
@@ -35,9 +32,9 @@ jobs:
       name: Setup pnpm cache
       with:
         path: ${{ steps.pnpm_info.outputs.store_path }}
-        key: ${{ runner.os }}-node${{ matrix.node_version }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        key: ${{ runner.os }}-node21-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
-          ${{ runner.os }}-node${{ matrix.node_version }}-pnpm-store-
+          ${{ runner.os }}-node21-pnpm-store-
 
     - name: Install dependencies
       run: |
