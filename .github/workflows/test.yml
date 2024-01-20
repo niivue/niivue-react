@@ -40,12 +40,12 @@ jobs:
       run: |
         pnpm install --strict-peer-dependencies --frozen-lockfile
     - name: Unit tests
-      run: pnpm test
+      run: pnpm test:unit
 
     - name: Install Playwright Browsers
-      run: pnpm exec playwright install --with-deps
+      run: pnpm exec playwright install --with-deps chromium
     - name: Integration tests
-      run: pnpm test:playwright
+      run: pnpm test:e2e
 
     - name: Upload unit test coverage
       if: ${{ always() }}
