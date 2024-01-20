@@ -5,7 +5,7 @@ import { HasUrlObject } from "../../src/model.ts";
 
 test.use({ viewport: { width: 500, height: 500 } });
 
-test("initial volumes are loaded", async ({ page }) => {
+test("initial volumes are loaded", async ({ page, _withCoverage }) => {
   const expectedUrls = [
     "**/images/mean_func.nii.gz",
     "**/images/cope1.nii.gz",
@@ -18,7 +18,7 @@ test("initial volumes are loaded", async ({ page }) => {
   results.forEach((result) => expect(result).toBeNull());
 });
 
-test("add and remove volumes", async ({ page, nvt }) => {
+test("add and remove volumes", async ({ page, nvt, _withCoverage }) => {
   const volumes1 = [
     { url: "/images/mean_func.nii.gz" },
     { url: "/images/cope1.nii.gz", opacity: 0.5 },
@@ -37,7 +37,7 @@ test("add and remove volumes", async ({ page, nvt }) => {
   );
 });
 
-test("can set and change colormap", async ({ page, nvt }) => {
+test("can set and change colormap", async ({ page, nvt, _withCoverage }) => {
   const getColormap = async () => {
     const vol1 = await nvt.getVolume("mean_func.nii.gz");
     return vol1._colormap;

@@ -46,3 +46,20 @@ jobs:
       run: pnpm exec playwright install --with-deps
     - name: Integration tests
       run: pnpm test:playwright
+
+    - name: Upload unit test coverage
+      if: ${{ always() }}
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage-vitest/clover.xml
+        flags: unittests
+        fail_ci_if_error: true
+    - name: Upload E2E test coverage
+      if: ${{ always() }}
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage-playwright/*.json
+        flags: e2etests
+        fail_ci_if_error: true
