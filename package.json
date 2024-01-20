@@ -3,8 +3,9 @@
   "module": "src/index.ts",
   "scripts": {
     "start": "vite examples",
-    "test": "vitest",
-    "test:playwright": "playwright test -c playwright.config.ts",
+    "test": "pnpm run test:unit --run && pnpm run test:e2e",
+    "test:unit": "vitest",
+    "test:e2e": "playwright test -c playwright.config.ts",
     "fix": "biome check --apply .",
     "fix:unsafe": "biome check --apply-unsafe .",
     "fmt": "biome format --write ."
