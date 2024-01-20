@@ -6,7 +6,9 @@ import { Diff, diffList, noChange } from "./diff.ts";
 /**
  * Fields of a `NVRVolume` which must be handled in a special way.
  */
-const SPECIAL_IMAGE_FIELDS = ["modulationImageUrl"];
+const SPECIAL_IMAGE_FIELDS = [
+  "modulationImageUrl", // depends on presence of another volume
+];
 
 /**
  * Remove fields which are listed in `SPECIAL_IMAGE_FIELDS`.
@@ -67,10 +69,14 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   const nv = nvRef.current;
 
   // a map which associates property names with their corresponding Niivue setter function.
-  const volumeUpdateFunctionMap: {
+  const volumeUpdateFunctionByIndexMap: {
     [key: string]: (index: number, value: any) => void;
   } = {
     opacity: nv.setOpacity,
+  };
+  const volumeUpdateFunctionByIdMap: {
+    [key: string]: (id: string, value: any) => void;
+  } = {
     colormap: nv.setColormap,
     colormapNegative: nv.setColormapNegative,
   };
@@ -107,9 +113,10 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
       return false;
     }
 
-    diffs.removed.forEach((vol) => nv.removeVolumeByUrl(vol.url));
     if (diffs.added.length > 0) {
       await reloadVolumes(prevVolumes, diffs);
+    } else if (diffs.removed.length > 0) {
+      diffs.removed.forEach((vol) => nv.removeVolumeByUrl(vol.url));
     }
     mutateVolumeProperties(diffs.changed);
     return true;
@@ -134,6 +141,18 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     const volumesToLoad = prevVolumes.filter(notRemoved).concat(diffs.added);
     await nv.loadVolumes(volumesToLoad.map(sanitizeImage));
     volumesToLoad.forEach(handleSpecialImageFields);
+
+    // colorbarVisible is a key of NVImage but not ImageFromUrlOptions, it does not get set by nv.loadVolumes
+    const needToSetColorbarVisible = volumesToLoad.filter(
+      (v): v is { colorbarVisible: boolean; url: string } =>
+        "colorbarVisible" in v,
+    );
+    if (needToSetColorbarVisible.length > 0) {
+      needToSetColorbarVisible.forEach(
+        (vol, i) => (nv.volumes[i].colorbarVisible = vol.colorbarVisible),
+      );
+      nv.updateGLVolume();
+    }
   };
 
   /**
@@ -183,14 +202,39 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   const applyVolumeChanges = (changes: NVRVolume) => {
     const volumeIndex = getVolumeIndex(changes);
     Object.entries(changes).forEach(([propertyName, value]) => {
-      const setter = volumeUpdateFunctionMap[propertyName];
-      if (setter) {
-        setter.bind(nv)(volumeIndex, value);
-      } else {
-        // fallback: manually set volume property then update.
-        // https://github.com/niivue/niivue/blob/41b134123870fb0b69540a2d8155e75ec8e06339/demos/features/modulate.html#L50-L51
-        nv.volumes[volumeIndex][propertyName] = value;
-        nv.updateGLVolume();
+      /*
+       * There are 3 ways a property can be set in Niivue:
+       *
+       * 1. a setter function which takes in an index (number)
+       * 2. a setter function which takes in an id (string)
+       * 3. no setter function given, must set property then call nv.updateGLVolume()
+       */
+      const setters: (() => (() => void) | null)[] = [
+        () => {
+          const setter = volumeUpdateFunctionByIndexMap[propertyName];
+          return setter ? () => setter.bind(nv)(volumeIndex, value) : null;
+        },
+        () => {
+          const setter = volumeUpdateFunctionByIdMap[propertyName];
+          return setter
+            ? () => setter.bind(nv)(nv.volumes[volumeIndex].id, value)
+            : null;
+        },
+        () => {
+          return () => {
+            // fallback: manually set volume property then update.
+            // https://github.com/niivue/niivue/blob/41b134123870fb0b69540a2d8155e75ec8e06339/demos/features/modulate.html#L50-L51
+            nv.volumes[volumeIndex][propertyName] = value;
+            nv.updateGLVolume();
+          };
+        },
+      ];
+      for (const getSetter of setters) {
+        const setter = getSetter();
+        if (setter !== null) {
+          setter();
+          break;
+        }
       }
     });
   };
