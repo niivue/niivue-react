@@ -48,7 +48,7 @@ const NiivueCanvasForTest: React.FC<NiivueCanvasForTestProps> = ({
   const onChanged = (givenNv: Niivue) => {
     assertNvRefDoesNotChange(givenNv);
     // we can't just use givenNv/realNv as nv because React won't rerender when it mutates
-    setNv({volumes: givenNv.volumes});
+    setNv({ volumes: givenNv.volumes });
   };
 
   return (
@@ -81,12 +81,17 @@ const NiivueCanvasForTest: React.FC<NiivueCanvasForTestProps> = ({
         {nv && (
           <div data-testid="nv-internal-state">
             <ul data-testid="nv-volume-urls">
-              {nv.volumes.map((v) => <li key={v.url} title="nv-volume-url">{v.url}</li>)}
+              {nv.volumes.map((v) => (
+                <li key={v.id} title="nv-volume-url">
+                  {v.url}
+                </li>
+              ))}
             </ul>
             <ol data-testid="nv-volume-list">
               {nv.volumes.map((volume) => (
                 <li
                   title="nv-volume-data"
+                  key={volume.id}
                   data-testid={`nv-volume-${volume.name}`}
                 >
                   {JSON.stringify(volume)}
