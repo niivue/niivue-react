@@ -1,6 +1,7 @@
 # niivue-react
 
 [![test](https://github.com/niivue/niivue-react/actions/workflows/test.yml/badge.svg)](https://github.com/niivue/niivue-react/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/niivue/niivue-react/branch/main/graph/badge.svg)](https://codecov.io/gh/niivue/niivue-react)
 [![BSD License](https://img.shields.io/github/license/niivue/niivue-react)](https://github.com/niivue/niivue-react/blob/main/LICENSE)
 
 `niivue-react` is a package which provides `<NiivueCanvas />`, a React component wrapper around `Niivue`
