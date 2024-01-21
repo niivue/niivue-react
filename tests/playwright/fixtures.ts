@@ -44,10 +44,10 @@ export const test = base.extend<MyFixtures>({
       .map((entry) => {
         return { ...entry, url: entry.url.replace(/^.+@fs/, "file://") };
       });
-    await fsPromises.mkdir("coverage-playwright", { recursive: true });
+    await fsPromises.mkdir("coverage-playwright/tmp", { recursive: true });
     const testTitle = testInfo.title.replaceAll("/", "_");
     await fsPromises.writeFile(
-      `coverage-playwright/${testTitle}.json`,
+      `coverage-playwright/tmp/${testTitle}.json`,
       JSON.stringify({ result: srcCoverage }, null, 2),
     );
   },

@@ -5,7 +5,7 @@
     "start": "vite examples",
     "test": "pnpm run test:unit --run && pnpm run test:e2e",
     "test:unit": "vitest",
-    "test:e2e": "playwright test -c playwright.config.ts",
+    "test:e2e": "playwright test -c playwright.config.ts; rc=$?; c8 report -o coverage-playwright -r clover -r text && exit $rc",
     "fix": "biome check --apply .",
     "fix:unsafe": "biome check --apply-unsafe .",
     "fmt": "biome format --write ."
@@ -17,6 +17,7 @@
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
     "@vitest/coverage-v8": "^1.2.1",
+    "c8": "^9.1.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.3",
     "use-immer": "^0.9.0",
