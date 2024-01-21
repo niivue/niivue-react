@@ -151,7 +151,7 @@ where `ventricle` is the volume we want to change.
 
 ## Another Example, Please
 
-Please checkout [ModulateScalar.tsx](example/src/ModulateScalar.tsx), which is a rewrite of
+Please checkout [ModulateScalar.tsx](examples/demos/ModulateScalar.tsx), which is a rewrite of
 [Niivue's modulateScalar.html](https://github.com/niivue/niivue/blob/main/demos/features/modulateScalar.html).
 
 ## Development
