@@ -5,7 +5,7 @@
 [![BSD License](https://img.shields.io/github/license/niivue/niivue-react)](https://github.com/niivue/niivue-react/blob/main/LICENSE)
 
 `niivue-react` is a package which provides `<NiivueCanvas />`, a React component wrapper around `Niivue`
-offering an immutable, declarative API.
+offering an immutable, declarative, React-friendly API.
 
 ## :construction: WORK IN PROGRESS :construction:
 
@@ -13,16 +13,17 @@ offering an immutable, declarative API.
 - What's tested: volumes
 - What's not: meshes. (In theory, we're already 90% the way there with mesh support.)
 
-## Abstract
+## Installation
 
-[Niivue](https://github.com/niivue/niivue) is a web-based medical image viewer. The `<NiivueCanvas />`
-component of `niivue-react` replaces Niivue's imperative API with an immutable, declarative, and thus
-React-friendly API. The advantages of `niivue-react` include intuitive state management, less documentation
-to read, and being more conducive to testable code.
+`niivue-react` is not yet available on NPM, so install it directly from GitHub:
+
+```shell
+npm install niivue/niivue-react
+```
 
 ## Niivue v.s. `niivue-react`
 
-For example, let's consider some code which uses Niivue directly:
+Niivue's API is imperative. For example, let's consider some code which uses Niivue directly:
 
 ```html
 <!DOCTYPE html>
@@ -143,11 +144,11 @@ around [`React.useState`](https://react.dev/learn/adding-interactivity#state-a-c
 instead of manually calling Niivue's myriad of methods such as `await nv.loadVolumes`,
 `nv.setOpacity`, `nv.opts.*`, and `nv.updateGLVolume`.
 
-Furthermore, `niivue-react`'s API is designed around URLs as identifiers whereas
-Niivue uses a mix of indices and IDs (which get confused easily). For example, in Niivue you could call
-`nv.setOpacity(i, 0.5)` where `i` is the array index of the volume you want to change.
-In the example above using `<NiivueCanvas />` all we do is set `ventricle.opacity = 0.5`
-where `ventricle` is the volume we want to change.
+Furthermore, `niivue-react`'s API is designed to avoid using identifiers whereas
+Niivue uses a mix of array index numbers and string IDs (which get confused easily).
+For example, in Niivue you could call `nv.setOpacity(i, 0.5)` where `i` is the array
+index of the volume you want to change. In the example above using `<NiivueCanvas />`
+all we do is set `ventricle.opacity = 0.5` where `ventricle` is the volume we want to change.
 
 ## Another Example, Please
 
