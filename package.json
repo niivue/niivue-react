@@ -18,6 +18,7 @@
     "@types/react-dom": "^18.2.18",
     "@vitest/coverage-v8": "^1.2.1",
     "c8": "^9.1.0",
+    "playwright-test-coverage-native": "^0.1.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.3",
     "use-immer": "^0.9.0",

@@ -37,6 +37,9 @@ devDependencies:
   c8:
     specifier: ^9.1.0
     version: 9.1.0
+  playwright-test-coverage-native:
+    specifier: ^0.1.0
+    version: 0.1.0(@playwright/test@1.41.1)
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
@@ -1251,6 +1254,14 @@ packages:
     resolution: {integrity: sha512-/KPO5DzXSMlxSX77wy+HihKGOunh3hqndhqeo/nMxfigiKzogn8kfL0ZBDu0L1RKgan5XHCPmn6zXd2NUJgjhg==}
     engines: {node: '>=16'}
     hasBin: true
+    dev: true
+
+  /playwright-test-coverage-native@0.1.0(@playwright/test@1.41.1):
+    resolution: {integrity: sha512-k49pGGChaWkmdWBZ+RwcAqv/75IegpFsKozklLb8qug9K6CJYc/s3ITSw6NNdiDhGHdcw0M0LpcocErlOuCNOw==}
+    peerDependencies:
+      '@playwright/test': ^1.41.1
+    dependencies:
+      '@playwright/test': 1.41.1
     dev: true
 
   /playwright@1.41.1:

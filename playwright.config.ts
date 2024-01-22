@@ -1,4 +1,4 @@
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices } from "playwright-test-coverage-native";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -31,7 +31,11 @@ export default defineConfig({
     // NOTE: our goal here isn't to extensively test Niivue, all we need is a working WebGL2!
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        coverageDir: './coverage-playwright/tmp',
+        coverageSrc: './src'
+      },
     },
   ],
 
