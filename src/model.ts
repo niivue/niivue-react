@@ -78,7 +78,7 @@ type NVROptions = {
   backColor?: number[];
   isNearestInterpolation?: boolean;
   multiplanarForceRender?: boolean;
-
+  isRadiologicalConvention?: boolean;
   // nv.* fields
   overlayOutlineWidth?: number;
 };
