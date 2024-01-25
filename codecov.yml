@@ -1,0 +1,5 @@
+# type definition files can be ignored
+ignore:
+  - src/index.ts
+  - src/model.ts
+  - src/reexport.ts

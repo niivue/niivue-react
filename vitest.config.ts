@@ -8,5 +8,7 @@ export default defineConfig({
       include: ["src/**"],
       reportsDirectory: "./coverage-vitest",
     },
+    environment: 'happy-dom',
+    restoreMocks: true
   },
 });

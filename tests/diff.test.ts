@@ -243,7 +243,7 @@ const COLORS = {
   Yellow: [255, 165, 0, 1.0],
 };
 
-const DIFF_PRIMITIVE_TEST_CASES = [
+const DIFF_PRIMITIVE_TEST_CASES: [object, object, object, string][] = [
   [{}, {}, {}, "empty"],
   [{ flavor: "salty" }, { flavor: "salty" }, {}, "no change"],
   [{ flavor: "salty" }, {}, { flavor: undefined }, 'deleted "flavor"'],
