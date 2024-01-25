@@ -18,7 +18,12 @@ it("uses option setter functions", () => {
     .mockImplementationOnce(noop);
   const setCrosshairColor = vi
     .spyOn(nv, "setCrosshairColor")
-    .mockImplementationOnce(noop);
+    .mockImplementationOnce(
+      // upstream bug: not actually async
+      // https://github.com/niivue/niivue/pull/858
+      // @ts-ignore
+      noop,
+    );
   const updateGLVolume = vi
     .spyOn(nv, "updateGLVolume")
     .mockImplementationOnce(noop);
@@ -71,8 +76,8 @@ it("warns about bogus options", () => {
   const nvMutator = new NiivueMutator(nv);
   const consoleMock = vi.spyOn(console, "warn").mockImplementation(noop);
 
-  // @ts-ignore
   nvMutator.applyOptions({
+    // @ts-ignore
     bogusOption: "whale whale whale, what do we have here",
   });
 
@@ -324,10 +329,9 @@ it("uses volume property setter methods", async () => {
   vi.spyOn(nv, "volumes", "get").mockReturnValue(
     Object.values(nvVolumes) as NVImage[],
   );
-  vi.spyOn(nv, "updateGLVolume")
-    .mockImplementationOnce(noop);
-  const setOpacity = vi.spyOn(nv, 'setOpacity').mockImplementation(noop);
-  const setColormap = vi.spyOn(nv, 'setColormap').mockImplementation(noop);
+  vi.spyOn(nv, "updateGLVolume").mockImplementationOnce(noop);
+  const setOpacity = vi.spyOn(nv, "setOpacity").mockImplementation(noop);
+  const setColormap = vi.spyOn(nv, "setColormap").mockImplementation(noop);
 
   const nvMutator = new NiivueMutator(nv);
   await nvMutator.loadVolumes(volumes);
@@ -338,7 +342,7 @@ it("uses volume property setter methods", async () => {
   });
   expect(setColormap).toHaveBeenCalledOnce();
   expect(setColormap).toHaveBeenCalledWith("cope1-uuid", "blue");
-  expect(nv.updateGLVolume).not.toHaveBeenCalled();  // not called bc the mock is a no-op
+  expect(nv.updateGLVolume).not.toHaveBeenCalled(); // not called bc the mock is a no-op
 
   nvMutator.applyVolumeChanges({
     url: "https://example.com/images/mean_func.nii.gz",
@@ -346,7 +350,7 @@ it("uses volume property setter methods", async () => {
   });
   expect(setOpacity).toHaveBeenCalledOnce();
   expect(setOpacity).toHaveBeenCalledWith(0, 0.7);
-  expect(nv.updateGLVolume).not.toHaveBeenCalled();  // not called bc the mock is a no-op
+  expect(nv.updateGLVolume).not.toHaveBeenCalled(); // not called bc the mock is a no-op
 });
 
 function noop() {}
