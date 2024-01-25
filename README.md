@@ -7,6 +7,8 @@
 `niivue-react` is a package which provides `<NiivueCanvas />`, a React component wrapper around `Niivue`
 offering an immutable, declarative, React-friendly API.
 
+For a real-world example, check out [FNNDSC's](https://fnndsc.org) "Fetal MRI atlas viewer." https://app.fetalmri.org/niivue
+
 > [!NOTE]  
 > Currently, 3D volumes and options are supported. Meshes are not yet supported, but we're 90% the way there!
 
