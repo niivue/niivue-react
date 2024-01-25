@@ -2,12 +2,17 @@
  * Type definitions copy-pasted from `niivue` since they are not public.
  */
 
-import { DRAG_MODE } from "@niivue/niivue";
+import {DRAG_MODE, SLICE_TYPE} from "@niivue/niivue";
 
 /**
  * Niivue options.
  *
- * https://github.com/niivue/niivue/blob/4dd7e2b946cdf384e88f76f61657a0ef1531f978/src/niivue/index.ts#L241-L327
+ * Note that there are some inconsistencies with what options are available... In upstream we have:
+ *
+ * - NiiVueOptions https://github.com/niivue/niivue/blob/4dd7e2b946cdf384e88f76f61657a0ef1531f978/src/niivue/index.ts#L241-L327
+ * - NVConfigOptions https://github.com/niivue/niivue/blob/4dd7e2b946cdf384e88f76f61657a0ef1531f978/src/nvdocument.ts#L40-L110
+ *
+ * There is some overlap between NiiVueOptions and NVConfigOptions
  */
 type NiiVueOptions = {
   // the text height for orientation labels (0 to 1). Zero for no text labels
@@ -92,6 +97,9 @@ type NiiVueOptions = {
   maxDrawUndoBitmaps?: number;
   // optional 2D png bitmap that can be rapidly loaded to defer slow loading of 3D image
   thumbnail?: string;
+
+  // from NVConfigOptions
+  sliceType: SLICE_TYPE
 };
 
 export type { NiiVueOptions };

@@ -15,6 +15,8 @@ function optionUpdateFunctionMap(nv: Niivue): OptionUpdateFunctionMap {
   const mapping = {
     crosshairWidth: nv.setCrosshairWidth,
     crosshairColor: nv.setCrosshairColor,
+    sliceType: nv.setSliceType,
+    isSliceMM: nv.setSliceMM
   };
   return bindAllValues(nv, mapping);
 }
