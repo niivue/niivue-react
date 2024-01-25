@@ -1,4 +1,4 @@
-# niivue-react
+# niivue-react :brain: :atom_symbol:
 
 [![test](https://github.com/niivue/niivue-react/actions/workflows/test.yml/badge.svg)](https://github.com/niivue/niivue-react/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/niivue/niivue-react/branch/main/graph/badge.svg)](https://codecov.io/gh/niivue/niivue-react)
@@ -7,11 +7,8 @@
 `niivue-react` is a package which provides `<NiivueCanvas />`, a React component wrapper around `Niivue`
 offering an immutable, declarative, React-friendly API.
 
-## :construction: WORK IN PROGRESS :construction:
-
-- What's working: volumes, Niivue options.
-- What's tested: volumes
-- What's not: meshes. (In theory, we're already 90% the way there with mesh support.)
+> [!NOTE]  
+> Currently, 3D volumes and options are supported. Meshes are not yet supported, but we're 90% the way there!
 
 ## Installation
 
