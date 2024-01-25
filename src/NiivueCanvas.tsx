@@ -1,27 +1,8 @@
 import React, { useRef } from "react";
-import { NVRMesh, NVRVolume, NVROptions, HasUrlObject } from "./model.ts";
+import { NVRMesh, NVRVolume, NVROptions } from "./model.ts";
 import { Niivue } from "@niivue/niivue";
-import { Diff, diffList, noChange } from "./diff.ts";
-
-/**
- * Fields of a `NVRVolume` which must be handled in a special way.
- */
-const SPECIAL_IMAGE_FIELDS = [
-  "modulationImageUrl", // depends on presence of another volume
-];
-
-/**
- * Remove fields which are listed in `SPECIAL_IMAGE_FIELDS`.
- */
-function sanitizeImage<T extends HasUrlObject>(image: T): T {
-  const toRemove = SPECIAL_IMAGE_FIELDS.filter((name) => name in image);
-  if (!toRemove) {
-    return image;
-  }
-  const copy: T = { ...image };
-  toRemove.forEach((name) => delete copy[name]);
-  return copy;
-}
+import { Diff, diffList, diffPrimitive, noChange } from "./diff.ts";
+import NiivueMutator from "./NiivueMutator.ts";
 
 type NiivueCanvasProps = {
   meshes?: NVRMesh[];
@@ -59,7 +40,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     throw new Error("NiivueCanvas does not yet support meshes!");
   }
 
-  const canvasRef = React.useRef();
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const nvRef = React.useRef(new Niivue());
   const [ready, setReady] = React.useState(false);
 
@@ -67,19 +48,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   const prevOptionsRef = useRef<NVROptions>({});
 
   const nv = nvRef.current;
-
-  // a map which associates property names with their corresponding Niivue setter function.
-  const volumeUpdateFunctionByIndexMap: {
-    [key: string]: (index: number, value: any) => void;
-  } = {
-    opacity: nv.setOpacity,
-  };
-  const volumeUpdateFunctionByIdMap: {
-    [key: string]: (id: string, value: any) => void;
-  } = {
-    colormap: nv.setColormap,
-    colormapNegative: nv.setColormapNegative,
-  };
+  const nvMutator = new NiivueMutator(nv);
 
   const setup = async () => {
     // @ts-ignore
@@ -88,8 +57,6 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   };
 
   const syncStateWithProps = async () => {
-    // note: for efficiency, we could mutate nv's fields directly then call nv.updateGLVolume...
-    // but that would be very brittle.
     const configChanged = syncConfig();
     const [volumesChanged] = await Promise.all([syncVolumes()]);
     onChanged && (configChanged || volumesChanged) && onChanged(nv);
@@ -100,7 +67,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
    *
    * @returns true if `volumes` was changed
    */
-  const syncVolumes = async (): boolean => {
+  const syncVolumes = async (): Promise<boolean> => {
     if (prevVolumesRef.current === volumes) {
       return false;
     }
@@ -118,7 +85,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     } else if (diffs.removed.length > 0) {
       diffs.removed.forEach((vol) => nv.removeVolumeByUrl(vol.url));
     }
-    mutateVolumeProperties(diffs.changed);
+    diffs.changed.forEach((vol) => nvMutator.applyVolumeChanges(vol));
     return true;
   };
 
@@ -134,33 +101,12 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   ) => {
     // nv.loadVolumes also removes the currently loaded volumes,
     // so we need to include them in the parameter to nv.loadVolumes
-    const notRemoved = (prevVolume) =>
+    const notRemoved = (prevVolume: NVRVolume) =>
       diffs.removed.length === 0
         ? true
         : !diffs.removed.find((removedVolume) => removedVolume === prevVolume);
     const volumesToLoad = prevVolumes.filter(notRemoved).concat(diffs.added);
-    await nv.loadVolumes(volumesToLoad.map(sanitizeImage));
-    volumesToLoad.forEach(handleSpecialImageFields);
-
-    // colorbarVisible is a key of NVImage but not ImageFromUrlOptions, it does not get set by nv.loadVolumes
-    const needToSetColorbarVisible = volumesToLoad.filter(
-      (v): v is { colorbarVisible: boolean; url: string } =>
-        "colorbarVisible" in v,
-    );
-    if (needToSetColorbarVisible.length > 0) {
-      needToSetColorbarVisible.forEach(
-        (vol, i) => (nv.volumes[i].colorbarVisible = vol.colorbarVisible),
-      );
-      nv.updateGLVolume();
-    }
-  };
-
-  /**
-   * Apply a change of state to volumes which are already loaded to this Niivue instance.
-   */
-  const mutateVolumeProperties = (changes: HasUrlObject[]) => {
-    changes.map(sanitizeImage).forEach(applyVolumeChanges);
-    changes.forEach(handleSpecialImageFields);
+    await nvMutator.loadVolumes(volumesToLoad);
   };
 
   /**
@@ -172,123 +118,25 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     if (prevOptionsRef.current === options) {
       return false;
     }
+    /*
+     * watch out! I think I forgot to call diff here, which usually works fine when
+     * values are set to something falsy instead of being deleted from the object.
+     */
     const nextConfig = options === undefined ? {} : options;
+    const diffConfig = diffPrimitive(
+      prevOptionsRef.current,
+      nextConfig,
+    ) as NVROptions;
     prevOptionsRef.current = nextConfig;
 
-    if (Object.keys(nextConfig).length === 0) {
+    if (Object.keys(diffConfig).length === 0) {
       return false;
     }
-
-    // some options e.g. isSliceMM have setter methods, but not all of them do e.g. isOrientCube.
-    // for efficiency, we mutate nv.opts and then call nv.updateGLVolume() directly.
-    // @ts-ignore
-    Object.entries(nextConfig).forEach(([key, value]) => {
-      if (key in nv.opts) {
-        // @ts-ignore
-        nv.opts[key] = value;
-      } else if (key in nv) {
-        // @ts-ignore
-        nv[key] = value;
-      } else {
-        console.warn(
-          `Don't know how to handle ${key}=${JSON.stringify(value)}`,
-        );
-      }
-    });
-    nv.updateGLVolume();
+    nvMutator.applyOptions(diffConfig);
     return true;
   };
 
-  const applyVolumeChanges = (changes: NVRVolume) => {
-    const volumeIndex = getVolumeIndex(changes);
-    Object.entries(changes).forEach(([propertyName, value]) => {
-      /*
-       * There are 3 ways a property can be set in Niivue:
-       *
-       * 1. a setter function which takes in an index (number)
-       * 2. a setter function which takes in an id (string)
-       * 3. no setter function given, must set property then call nv.updateGLVolume()
-       */
-      const setters: (() => (() => void) | null)[] = [
-        () => {
-          const setter = volumeUpdateFunctionByIndexMap[propertyName];
-          return setter ? () => setter.bind(nv)(volumeIndex, value) : null;
-        },
-        () => {
-          const setter = volumeUpdateFunctionByIdMap[propertyName];
-          return setter
-            ? () => setter.bind(nv)(nv.volumes[volumeIndex].id, value)
-            : null;
-        },
-        () => {
-          return () => {
-            // fallback: manually set volume property then update.
-            // https://github.com/niivue/niivue/blob/41b134123870fb0b69540a2d8155e75ec8e06339/demos/features/modulate.html#L50-L51
-            nv.volumes[volumeIndex][propertyName] = value;
-            nv.updateGLVolume();
-          };
-        },
-      ];
-      for (const getSetter of setters) {
-        const setter = getSetter();
-        if (setter !== null) {
-          setter();
-          break;
-        }
-      }
-    });
-  };
-
-  /**
-   * Handle the fields listed in `SPECIAL_IMAGE_FIELDS`.
-   */
-  const handleSpecialImageFields = (image: NVRVolume) => {
-    if ("modulationImageUrl" in image) {
-      setModulationImage(image, image.modulationImageUrl);
-    }
-  };
-
-  const setModulationImage = (
-    target: NVRVolume,
-    modulateUrl: string | null | undefined,
-  ) => {
-    const targetImage = nv.getMediaByUrl(target.url);
-    if (modulateUrl === null || modulateUrl === undefined) {
-      nv.setModulationImage(targetImage.id, null, target.modulateAlpha || 0);
-      return;
-    }
-    const modulationImage = nv.getMediaByUrl(modulateUrl);
-    if (modulationImage === undefined) {
-      console.warn(`modulationImageUrl not found in volumes: ${modulateUrl}`);
-      return;
-    }
-    nv.setModulationImage(
-      targetImage.id,
-      modulationImage.id,
-      target.modulateAlpha || 0,
-    );
-  };
-
-  const getVolumeIndex = (volume: NVRVolume): number => {
-    const loadedImage = nv.getMediaByUrl(volume.url);
-    const i = nv.volumes.findIndex((volume) => volume === loadedImage);
-
-    if (i === -1) {
-      throw new Error(`No volume found with URL ${volume.url}`);
-    }
-
-    return i;
-  };
-
-  const glIsReady = (): boolean => {
-    try {
-      return !!nv.gl;
-    } catch (_e: any) {
-      return false;
-    }
-  };
-
-  if (ready && glIsReady()) {
+  if (ready && nvMutator.glIsReady()) {
     syncStateWithProps();
   }
 

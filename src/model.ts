@@ -1,4 +1,4 @@
-import { SLICE_TYPE } from "@niivue/niivue";
+import { NiiVueOptions } from "./reexport.ts";
 
 type HasUrlObject = { [key: string]: any; url: string };
 
@@ -39,10 +39,12 @@ type NVRMesh = {
 };
 
 /**
- * A volume (e.g. t2 MRI) in NiiVue.
+ * Options of a volume which are directly compatible with `ImageFromUrlOptions` and `NVImage`, meaning:
+ *
+ * - properties are supported by `Niivue.loadVolumes`
+ * - properties can be changed by mutating `nv.volumes[*].*`
  */
-type NVRVolume = {
-  url: string;
+type LoadableVolumeOptions = {
   opacity?: number;
   colormap?: string;
   colormapNegative?: string;
@@ -51,50 +53,67 @@ type NVRVolume = {
   trustCalMinMax?: boolean;
   visible?: boolean;
   colorbarVisible?: boolean;
+};
 
+/**
+ * Options of a volume which are directly compatible with `NVImage`.
+ */
+type ImageOptions = LoadableVolumeOptions & {
+  modulateAlpha?: number;
+};
+
+/**
+ * Special options of a volume which are supported handled differently in `niivue-react` and Niivue,
+ * for the sake of ergonomics.
+ */
+type SpecialVolumeOptions = {
   /**
-   * Another loaded image which modulates this one.
+   * Another loaded image which modulates this one. See `Niivue.setModulationImage`
+   *
+   * https://github.com/niivue/niivue/blob/4dd7e2b946cdf384e88f76f61657a0ef1531f978/src/niivue/index.ts#L5893-L5914
    */
   modulationImageUrl?: string | null;
-  modulateAlpha?: number;
+};
+
+/**
+ * Volume options supported by `niivue-react`.
+ */
+type NVRVolumeOptions = ImageOptions & SpecialVolumeOptions;
+
+/**
+ * A volume (e.g. t2 MRI) in NiiVue.
+ */
+type NVRVolume = NVRVolumeOptions & {
+  url: string;
 };
 
 /**
  * Niivue configurations.
  *
- * This is a subset of what is configurable via `nv.opts` U `nv`.
- * There is some overlap with the options of
- * [`NiiVueOptions`](https://github.com/niivue/niivue/blob/41b134123870fb0b69540a2d8155e75ec8e06339/src/niivue/index.ts#L239-L242),
- * though some variable names are different.
+ * This is a union of [`NiivueOptions`](https://github.com/niivue/niivue/blob/9fa221344a6f39315574efa4ef4c6e9da930de57/src/niivue/index.ts#L241-L327)
+ * and a subset of the fields of [`Niivue`](https://github.com/niivue/niivue/blob/9fa221344a6f39315574efa4ef4c6e9da930de57/src/niivue/index.ts#L381-L441).
  */
-type NVROptions = {
-  // nv.opts.* fields
-  isColorbar?: boolean;
-  isOrientCube?: boolean;
-  isHighResolutionCapable?: boolean;
-  meshThicknessOn2D?: number;
-  sliceType?: SLICE_TYPE;
-  isSliceMM?: boolean;
-  backColor?: number[];
-  isNearestInterpolation?: boolean;
-  multiplanarForceRender?: boolean;
-  isRadiologicalConvention?: boolean;
+type NVROptions = NiiVueOptions & {
+  textHeight?: number;
+  colorbarHeight?: number;
+
   // nv.* fields
   overlayOutlineWidth?: number;
+
+  // not safe to configure by setting nv.opts.* directly, must use setter methods
+  crosshairColor?: number[];
+  crosshairWidth?: number;
+  volScaleMultiplier?: number;
 };
 
-/**
- * Converts to `LoadFromUrlParams` (which is not exported by niivue).
- */
-function canonicalizeNvrMesh(mesh: NVRMesh): HasUrlObject {
-  if (mesh.layers) {
-    return {
-      ...mesh,
-      layers: Object.values(mesh.layers),
-    };
-  }
-  return mesh;
-}
-
-export type { NVRMesh, NVRMeshLayer, NVRVolume, NVROptions, HasUrlObject };
-export { canonicalizeNvrMesh };
+export type {
+  NVRMesh,
+  NVRMeshLayer,
+  NVRVolume,
+  LoadableVolumeOptions,
+  ImageOptions,
+  SpecialVolumeOptions,
+  NVRVolumeOptions,
+  NVROptions,
+  HasUrlObject,
+};
