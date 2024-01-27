@@ -118,10 +118,6 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     if (prevOptionsRef.current === options) {
       return false;
     }
-    /*
-     * watch out! I think I forgot to call diff here, which usually works fine when
-     * values are set to something falsy instead of being deleted from the object.
-     */
     const nextConfig = options === undefined ? {} : options;
     const diffConfig = diffPrimitive(
       prevOptionsRef.current,
