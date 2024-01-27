@@ -51,7 +51,6 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   const nvMutator = new NiivueMutator(nv);
 
   const setup = async () => {
-    // @ts-ignore
     await nv.attachToCanvas(canvasRef.current);
     onStart && onStart(nv);
   };
@@ -140,11 +139,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     setup().then(() => setReady(true));
   }, []);
 
-  return (
-    <div>
-      <canvas ref={canvasRef} />
-    </div>
-  );
+  return (<canvas ref={canvasRef} />);
 };
 
 export type { NiivueCanvasProps };
