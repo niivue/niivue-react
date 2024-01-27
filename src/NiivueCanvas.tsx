@@ -51,7 +51,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   const nvMutator = new NiivueMutator(nv);
 
   const setup = async () => {
-    await nv.attachToCanvas(canvasRef.current);
+    await nv.attachToCanvas(canvasRef.current as HTMLCanvasElement);
     onStart && onStart(nv);
   };
 
