@@ -99,7 +99,7 @@ type NiiVueOptions = {
   thumbnail?: string;
 
   // from NVConfigOptions
-  sliceType: SLICE_TYPE
+  sliceType?: SLICE_TYPE
 };
 
 export type { NiiVueOptions };
