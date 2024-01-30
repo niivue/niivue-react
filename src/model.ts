@@ -1,4 +1,5 @@
 import { NiiVueOptions } from "./reexport.ts";
+import { Niivue, NVImage, NVMeshFromUrlOptions } from "@niivue/niivue";
 
 type HasUrlObject = { [key: string]: any; url: string };
 
@@ -21,22 +22,10 @@ type NVRMeshLayer = {
 /**
  * A mesh (e.g. white-matter surface) in Niivue.
  */
-type NVRMesh = {
-  url: string;
-  name?: string;
-  opacity?: number;
-  visible?: boolean;
-  rgba255?: number[];
-  /**
-   * Map keys must be some kind of unique ID. For example, given `NVRMeshLayer[]`:
-   *
-   * ```typescript
-   * (layers: NVRMeshLayer[]) => Object.fromEntries(layers.map((layer) => [layer.url, layer]))
-   * ```
-   */
-  layers?: { [key: string]: NVRMeshLayer };
-  colorbarVisible?: boolean;
-};
+type NVRMesh = { url: string } & Pick<
+  NVMeshFromUrlOptions,
+  "name" | "opacity" | "visible" | "rgba255" | "colorbarVisible"
+>;
 
 /**
  * Options of a volume which are directly compatible with `ImageFromUrlOptions` and `NVImage`, meaning:
@@ -44,23 +33,22 @@ type NVRMesh = {
  * - properties are supported by `Niivue.loadVolumes`
  * - properties can be changed by mutating `nv.volumes[*].*`
  */
-type LoadableVolumeOptions = {
-  opacity?: number;
-  colormap?: string;
-  colormapNegative?: string;
-  cal_min?: number;
-  cal_max?: number;
-  trustCalMinMax?: boolean;
-  visible?: boolean;
-  colorbarVisible?: boolean;
-};
+type LoadableVolumeOptions = Pick<
+  NVImage,
+  | "opacity"
+  | "colormap"
+  | "colormapNegative"
+  | "cal_min"
+  | "cal_max"
+  | "trustCalMinMax"
+  | "visible"
+  | "colorbarVisible"
+>;
 
 /**
  * Options of a volume which are directly compatible with `NVImage`.
  */
-type ImageOptions = LoadableVolumeOptions & {
-  modulateAlpha?: number;
-};
+type ImageOptions = LoadableVolumeOptions & Pick<NVImage, "modulateAlpha">;
 
 /**
  * Special options of a volume which are supported handled differently in `niivue-react` and Niivue,

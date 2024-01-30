@@ -2,7 +2,7 @@
  * Type definitions copy-pasted from `niivue` since they are not public.
  */
 
-import {DRAG_MODE, SLICE_TYPE} from "@niivue/niivue";
+import { DRAG_MODE, SLICE_TYPE } from "@niivue/niivue";
 
 /**
  * Niivue options.
@@ -99,7 +99,7 @@ type NiiVueOptions = {
   thumbnail?: string;
 
   // from NVConfigOptions
-  sliceType?: SLICE_TYPE
+  sliceType?: SLICE_TYPE;
 };
 
 export type { NiiVueOptions };

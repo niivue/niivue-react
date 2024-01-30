@@ -139,7 +139,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     setup().then(() => setReady(true));
   }, []);
 
-  return (<canvas ref={canvasRef} />);
+  return <canvas ref={canvasRef} />;
 };
 
 export type { NiivueCanvasProps };
