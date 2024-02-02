@@ -13,6 +13,7 @@ type OptionUpdateFunctionMap = {
  */
 function optionUpdateFunctionMap(nv: Niivue): OptionUpdateFunctionMap {
   const mapping = {
+    // FIXME nv.setCrosshairWidth and nv.setCrosshairColor should NOT be called if nv.crosshairs3D is null!
     crosshairWidth: nv.setCrosshairWidth,
     crosshairColor: nv.setCrosshairColor,
     sliceType: nv.setSliceType,

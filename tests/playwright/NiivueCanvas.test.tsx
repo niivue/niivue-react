@@ -48,3 +48,7 @@ test("can set and change colormap", async ({ page, nvt }) => {
   await expect(page.getByTitle("nv-volume-data")).toHaveCount(1);
   await expect.poll(getColormap).toBe("red");
 });
+
+test("can set crosshairWidth", async ({ page, nvt }) => {
+  await nvt.setOptions({crosshairWidth: 1});
+});
