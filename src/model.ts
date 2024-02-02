@@ -1,5 +1,5 @@
 import { NiiVueOptions } from "./reexport.ts";
-import { Niivue, NVImage, NVMeshFromUrlOptions } from "@niivue/niivue";
+import { NVImage, NVMeshFromUrlOptions } from "@niivue/niivue";
 
 type HasUrlObject = { [key: string]: any; url: string };
 
@@ -23,7 +23,7 @@ type NVRMeshLayer = {
  * A mesh (e.g. white-matter surface) in Niivue.
  */
 type NVRMesh = { url: string } & Pick<
-  NVMeshFromUrlOptions,
+  Partial<NVMeshFromUrlOptions>,
   "name" | "opacity" | "visible" | "rgba255" | "colorbarVisible"
 >;
 
@@ -34,7 +34,7 @@ type NVRMesh = { url: string } & Pick<
  * - properties can be changed by mutating `nv.volumes[*].*`
  */
 type LoadableVolumeOptions = Pick<
-  NVImage,
+  Partial<NVImage>,
   | "opacity"
   | "colormap"
   | "colormapNegative"
@@ -48,7 +48,7 @@ type LoadableVolumeOptions = Pick<
 /**
  * Options of a volume which are directly compatible with `NVImage`.
  */
-type ImageOptions = LoadableVolumeOptions & Pick<NVImage, "modulateAlpha">;
+type ImageOptions = LoadableVolumeOptions & Pick<Partial<NVImage>, "modulateAlpha">;
 
 /**
  * Special options of a volume which are supported handled differently in `niivue-react` and Niivue,
