@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures.ts";
+import {expect, test} from "./fixtures.ts";
 
 test.use({ viewport: { width: 500, height: 500 } });
 
@@ -49,6 +49,21 @@ test("can set and change colormap", async ({ page, nvt }) => {
   await expect.poll(getColormap).toBe("red");
 });
 
-test("can set crosshairWidth", async ({ page, nvt }) => {
-  await nvt.setOptions({crosshairWidth: 1});
+// skipped until https://github.com/niivue/niivue/pull/864 gets merged
+test.skip("can set crosshairWidth", async ({ nvt }) => {
+  // regression test: having the option crosshairWidth without the 3D render being shown can cause an exception
+  // if nv.setCrosshairWidth is called.
+  await nvt.setOptions({crosshairWidth: 10, sliceType: 0 }); // axial
+  expect(await nvt.getOpts()).toHaveProperty('crosshairWidth', 10);
+  await nvt.setVolumes([{ url: "/images/mean_func.nii.gz" }]);
+  await nvt.setOptions({crosshairWidth: 10, multiplanarForceRender: true, sliceType: 3}); // multiplanar
+  expect(await nvt.getOpts()).toHaveProperty('crosshairWidth', 10);
+});
+
+test("can set crosshairColor", async ({ nvt }) => {
+  // regression test: having the option crosshairWidth without the 3D render being shown can cause an exception
+  // if nv.setCrosshairWidth is called.
+  await nvt.setOptions({crosshairColor: [0, 0.5, 0], sliceType: 0 }); // axial
+  const nvOpts = await nvt.getOpts();
+  expect(nvOpts).toHaveProperty('crosshairColor', [0, 0.5, 0]);
 });

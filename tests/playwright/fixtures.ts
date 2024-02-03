@@ -36,7 +36,8 @@ export const test = base.extend<MyFixtures>({
     };
 
     const getOpts = async () => {
-      return await page.getByTestId('nv-opts').innerText();
+      const text = await page.getByTestId('nv-opts').innerText();
+      return JSON.parse(text);
     }
 
     const errors: Error[] = [];
