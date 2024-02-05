@@ -34,6 +34,7 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         coverageDir: './coverage-playwright/tmp',
+        coverageSourceMapHandler: '@fs',
         coverageSrc: './src'
       },
     },
