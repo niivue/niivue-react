@@ -213,18 +213,18 @@ class NiivueMutator {
   }
 }
 
-/**
- * Converts to `LoadFromUrlParams` (which is not exported by niivue).
- */
-function canonicalizeNvrMesh(mesh: NVRMesh): HasUrlObject {
-  if (mesh.layers) {
-    return {
-      ...mesh,
-      layers: Object.values(mesh.layers),
-    };
-  }
-  return mesh;
-}
+// /**
+//  * Converts to `LoadFromUrlParams` (which is not exported by niivue).
+//  */
+// function canonicalizeNvrMesh(mesh: NVRMesh): HasUrlObject {
+//   if (mesh.layers) {
+//     return {
+//       ...mesh,
+//       layers: Object.values(mesh.layers),
+//     };
+//   }
+//   return mesh;
+// }
 
 /**
  * Wrapper around `Object.entries` with safe type coercion of the keys to `keyof T`.
