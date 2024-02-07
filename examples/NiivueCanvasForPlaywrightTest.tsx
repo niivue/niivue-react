@@ -96,7 +96,9 @@ const NiivueCanvasForTest: React.FC<NiivueCanvasForTestProps> = ({
         </button>
         <div>
           optionsChangeCounter=
-          <span data-testid="options-change-counter">{optionsChangeCounter}</span>
+          <span data-testid="options-change-counter">
+            {optionsChangeCounter}
+          </span>
         </div>
 
         {nv && (
@@ -127,5 +129,5 @@ const NiivueCanvasForTest: React.FC<NiivueCanvasForTestProps> = ({
   );
 };
 
-export type {NiivueCanvasForTestProps};
-export {NiivueCanvasForTest};
+export type { NiivueCanvasForTestProps };
+export { NiivueCanvasForTest };

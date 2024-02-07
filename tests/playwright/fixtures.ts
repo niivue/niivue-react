@@ -1,6 +1,6 @@
 import { test as base, expect } from "playwright-test-coverage-native";
 import { NVImage } from "@niivue/niivue";
-import {NVROptions, NVRVolume} from "../../src";
+import { NVROptions, NVRVolume } from "../../src";
 
 type NiivueCanvasTest = {
   getVolume: (name: string) => Promise<NVImage>;
@@ -28,17 +28,21 @@ export const test = base.extend<MyFixtures>({
       return JSON.parse(await getText());
     };
     const setOptions = async (options: NVROptions) => {
-      const counterString = await page.getByTestId('options-change-counter').innerText();
+      const counterString = await page
+        .getByTestId("options-change-counter")
+        .innerText();
       const counterValue = parseInt(counterString);
       await page.getByTestId("options-string").fill(JSON.stringify(options));
       await page.getByTestId("set-options").click();
-      await expect(page.getByTestId('options-change-counter')).toHaveText(`${counterValue + 1}`);
+      await expect(page.getByTestId("options-change-counter")).toHaveText(
+        `${counterValue + 1}`,
+      );
     };
 
     const getOpts = async () => {
-      const text = await page.getByTestId('nv-opts').innerText();
+      const text = await page.getByTestId("nv-opts").innerText();
       return JSON.parse(text);
-    }
+    };
 
     const errors: Error[] = [];
     page.on("pageerror", (error) => errors.push(error));
