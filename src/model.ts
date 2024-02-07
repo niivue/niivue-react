@@ -22,7 +22,7 @@ type NVRMeshLayer = {
 /**
  * A mesh (e.g. white-matter surface) in Niivue.
  */
-type NVRMesh = { url: string } & Pick<
+type NVRMesh = { url: string; layers: NVRMeshLayer[] } & Pick<
   Partial<NVMeshFromUrlOptions>,
   "name" | "opacity" | "visible" | "rgba255" | "colorbarVisible"
 >;
@@ -48,7 +48,8 @@ type LoadableVolumeOptions = Pick<
 /**
  * Options of a volume which are directly compatible with `NVImage`.
  */
-type ImageOptions = LoadableVolumeOptions & Pick<Partial<NVImage>, "modulateAlpha">;
+type ImageOptions = LoadableVolumeOptions &
+  Pick<Partial<NVImage>, "modulateAlpha">;
 
 /**
  * Special options of a volume which are supported handled differently in `niivue-react` and Niivue,
