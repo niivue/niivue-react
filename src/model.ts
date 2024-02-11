@@ -35,6 +35,7 @@ type NVRMesh = { url: string; layers: NVRMeshLayer[] } & Pick<
  */
 type LoadableVolumeOptions = Pick<
   Partial<NVImage>,
+  | "name"
   | "opacity"
   | "colormap"
   | "colormapNegative"
