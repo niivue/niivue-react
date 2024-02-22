@@ -1,5 +1,7 @@
-import { NiiVueOptions } from "./reexport.ts";
+import { ColorMap, NiiVueOptions } from "./reexport";
 import { NVImage, NVMeshFromUrlOptions } from "@niivue/niivue";
+// noinspection ES6UnusedImports: used for TSDoc
+import { FreeSurferColorLUT } from "./colormaps";
 
 type HasUrlObject = { [key: string]: any; url: string };
 
@@ -30,8 +32,8 @@ type NVRMesh = { url: string; layers: NVRMeshLayer[] } & Pick<
 /**
  * Options of a volume which are directly compatible with `ImageFromUrlOptions` and `NVImage`, meaning:
  *
- * - properties are supported by `Niivue.loadVolumes`
- * - properties can be changed by mutating `nv.volumes[*].*`
+ * - properties are supported by {@link Niivue.loadVolumes}
+ * - properties can be changed by mutating {@link Niivue.volumes}
  */
 type LoadableVolumeOptions = Pick<
   Partial<NVImage>,
@@ -47,7 +49,7 @@ type LoadableVolumeOptions = Pick<
 >;
 
 /**
- * Options of a volume which are directly compatible with `NVImage`.
+ * Options of a volume which are directly compatible with {@link NVImage}.
  */
 type ImageOptions = LoadableVolumeOptions &
   Pick<Partial<NVImage>, "modulateAlpha">;
@@ -58,11 +60,19 @@ type ImageOptions = LoadableVolumeOptions &
  */
 type SpecialVolumeOptions = {
   /**
-   * Another loaded image which modulates this one. See `Niivue.setModulationImage`
+   * Another loaded image which modulates this one. See {@link Niivue.setModulationImage}
    *
    * https://github.com/niivue/niivue/blob/4dd7e2b946cdf384e88f76f61657a0ef1531f978/src/niivue/index.ts#L5893-L5914
    */
   modulationImageUrl?: string | null;
+
+  /**
+   * Color map for a volume which represents labels (segmentation).
+   * See {@link NVImage.setColormapLabel}
+   *
+   * Example value: {@link FreeSurferColorLUT}
+   */
+  colormapLabel?: ColorMap;
 };
 
 /**

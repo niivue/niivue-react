@@ -1,6 +1,8 @@
 import { expect, it, vi } from "vitest";
 import { DRAG_MODE, Niivue, NVImage } from "@niivue/niivue";
 import NiivueMutator from "../src/NiivueMutator.ts";
+import AalLabelColorMap from "../examples/public/images/aal.json";
+import { ColorMap } from "../src/reexport.ts";
 
 it("reports GL context is ready", () => {
   const nv = new Niivue();
@@ -351,6 +353,44 @@ it("uses volume property setter methods", async () => {
   expect(setOpacity).toHaveBeenCalledOnce();
   expect(setOpacity).toHaveBeenCalledWith(0, 0.7);
   expect(nv.updateGLVolume).not.toHaveBeenCalled(); // not called bc the mock is a no-op
+});
+
+it("can call setColormapLabel", async () => {
+  const volumes = [
+    {
+      url: "https://example.com/images/mni152.nii.gz",
+    },
+    {
+      url: "https://example.com/images/aal.nii.gz",
+      colormapLabel: AalLabelColorMap as ColorMap,
+    },
+  ];
+  const setColormapLabel = vi.fn();
+  const nvVolumes: { [key: string]: object } = {
+    "https://example.com/images/mni152.nii.gz": {
+      id: "mni152-uuid",
+    },
+    "https://example.com/images/aal.nii.gz": {
+      id: "aal-uuid",
+      setColormapLabel,
+    },
+  };
+
+  const nv = new Niivue();
+  vi.spyOn(nv, "loadVolumes").mockImplementation(async () => nv);
+  vi.spyOn(nv, "getMediaByUrl").mockImplementation((url) => {
+    return nvVolumes[url] as NVImage;
+  });
+  vi.spyOn(nv, "volumes", "get").mockReturnValue(
+    Object.values(nvVolumes) as NVImage[],
+  );
+  vi.spyOn(nv, "updateGLVolume").mockImplementationOnce(noop);
+
+  const nvMutator = new NiivueMutator(nv);
+  await nvMutator.loadVolumes(volumes);
+  expect(setColormapLabel).toHaveBeenCalledOnce();
+  expect(setColormapLabel).toHaveBeenCalledWith(AalLabelColorMap);
+  expect(nv.updateGLVolume).toHaveBeenCalledOnce();
 });
 
 function noop() {}

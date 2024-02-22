@@ -4,10 +4,9 @@ import {
   LoadableVolumeOptions,
   ImageOptions,
   NVROptions,
-  NVRMesh,
-  HasUrlObject,
 } from "./model.ts";
 import * as setters from "./setters.ts";
+import { ColorMap } from "./reexport.ts";
 
 /**
  * Provides helper functions to mutate the Niivue instance.
@@ -109,16 +108,19 @@ class NiivueMutator {
   }
 
   /**
-   * Handle special properties such as the keys of `SpecialVolumeOptions`.
+   * Handle special properties such as the keys of {@link SpecialVolumeOptions}.
    */
   private handleSpecialImageProperties(volume: NVRVolume) {
     if ("modulationImageUrl" in volume) {
       this.setModulationImage(volume, volume.modulationImageUrl);
     }
+    if ("colormapLabel" in volume) {
+      this.setColormapLabel(volume, volume.colormapLabel);
+    }
   }
 
   /**
-   * Wrapper for `this.nv.setModulationImage`
+   * Wrapper for {@link Niivue.setModulationImage}
    */
   private setModulationImage(
     target: NVRVolume,
@@ -146,6 +148,23 @@ class NiivueMutator {
       modulationImage.id,
       target.modulateAlpha || 0,
     );
+  }
+
+  /**
+   * Wrapper for {@link NVImage.setColormapLabel}
+   */
+  private setColormapLabel(
+    volume: NVRVolume,
+    colormapLabel: undefined | ColorMap,
+  ) {
+    if (colormapLabel === undefined) {
+      throw new Error(
+        `colormapLabel is undefined, and unsetting of a colormapLabel is not supported.`,
+      );
+    }
+    const targetImage = this.nv.getMediaByUrl(volume.url) as NVImage;
+    targetImage.setColormapLabel(colormapLabel);
+    this.nv.updateGLVolume();
   }
 
   /**
@@ -244,6 +263,7 @@ const SPECIAL_IMAGE_FIELDS: (keyof NVRVolume)[] = ["url", "modulationImageUrl"];
 const UNLOADABLE_IMAGE_FIELDS: (keyof NVRVolume)[] = [
   "modulationImageUrl",
   "modulateAlpha",
+  "colormapLabel",
 ];
 
 /**

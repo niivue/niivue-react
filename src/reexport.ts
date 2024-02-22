@@ -102,4 +102,23 @@ type NiiVueOptions = {
   sliceType?: SLICE_TYPE;
 };
 
-export type { NiiVueOptions };
+/**
+ * Niivue color map.
+ *
+ * Documentation: https://github.com/niivue/niivue/blob/main/docs/development-notes/colormaps.md
+ *
+ * https://github.com/niivue/niivue/blob/bef7941124538e3e593fbce632b7d67826c9bc1e/src/colortables.ts#L4-L14
+ */
+type ColorMap = {
+  R: number[];
+  G: number[];
+  B: number[];
+  A: number[];
+  I: number[];
+
+  min?: number;
+  max?: number;
+  labels?: string[];
+};
+
+export type { NiiVueOptions, ColorMap };

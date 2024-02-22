@@ -10,6 +10,7 @@ import { NiivueCanvasForTest } from "./NiivueCanvasForPlaywrightTest.tsx";
 import ReadmeExample from "./ReadmeExample.tsx";
 import ModulateScalar from "./demos/ModulateScalar.tsx";
 import "./index.css";
+import Atlas from "./demos/Atlas.tsx";
 
 const nonRootRoutes: RouteObject[] = [
   {
@@ -19,6 +20,10 @@ const nonRootRoutes: RouteObject[] = [
   {
     path: "/modulate_scalar",
     element: <ModulateScalar />,
+  },
+  {
+    path: "/atlas",
+    element: <Atlas />,
   },
   {
     path: "/playwright_harness",
