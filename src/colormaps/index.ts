@@ -3,11 +3,12 @@
  * with a few fixes.
  */
 
+import FreeSurferColorLUTJson from "./FreeSurferColorLUT.json";
+import {ColorMap} from "../reexport";
+
 /**
  * Full `FreeSurferColorLUT.txt` label color map.
  */
-import FreeSurferColorLUT from "./FreeSurferColorLUT.json";
-
-Object.freeze(FreeSurferColorLUT);
+const FreeSurferColorLUT = Object.freeze(FreeSurferColorLUTJson) as ColorMap;
 
 export { FreeSurferColorLUT };
