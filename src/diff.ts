@@ -1,5 +1,5 @@
 import { HasUrlObject } from "./model";
-import equal from "fast-deep-equal/es6";
+import { dequal } from "dequal/lite";
 
 /**
  * A special value which indicates that the difference between two objects is Irreconcilable.
@@ -187,7 +187,7 @@ function diffPrimitive<T extends { [key: string]: any }>(
   const yKeys = Object.keys(y);
   const deletedKeys = setDifference(xKeys, yKeys);
   const addedKeys = setDifference(yKeys, xKeys);
-  const changedKeys = xKeys.filter((key) => !equal(x[key], y[key]));
+  const changedKeys = xKeys.filter((key) => !dequal(x[key], y[key]));
   const diffKeys = addedKeys.concat(changedKeys);
   return {
     ...Object.fromEntries(deletedKeys.map((key) => [key, undefined])),
