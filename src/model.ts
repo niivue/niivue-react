@@ -72,7 +72,7 @@ type SpecialVolumeOptions = {
    *
    * Example value: {@link FreeSurferColorLUT}
    */
-  colormapLabel?: ColorMap;
+  colormapLabel?: ColorMap | null;
 };
 
 /**

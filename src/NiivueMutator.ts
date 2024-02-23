@@ -155,15 +155,14 @@ class NiivueMutator {
    */
   private setColormapLabel(
     volume: NVRVolume,
-    colormapLabel: undefined | ColorMap,
+    colormapLabel: undefined | null | ColorMap,
   ) {
-    if (colormapLabel === undefined) {
-      throw new Error(
-        `colormapLabel is undefined, and unsetting of a colormapLabel is not supported.`,
-      );
-    }
     const targetImage = this.nv.getMediaByUrl(volume.url) as NVImage;
-    targetImage.setColormapLabel(colormapLabel);
+    if (colormapLabel === undefined || colormapLabel === null) {
+      targetImage.colormapLabel = null;
+    } else {
+      targetImage.setColormapLabel(colormapLabel);
+    }
     this.nv.updateGLVolume();
   }
 
