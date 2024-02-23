@@ -31,5 +31,8 @@
     "@niivue/niivue": "^0.39.0",
     "react": "^17 || ^18",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "fast-deep-equal": "^3.1.3"
   }
 }
