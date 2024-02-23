@@ -4,7 +4,7 @@
  */
 
 import FreeSurferColorLUTJson from "./FreeSurferColorLUT.json";
-import {ColorMap} from "../reexport";
+import { ColorMap } from "../reexport";
 
 /**
  * Full `FreeSurferColorLUT.txt` label color map.

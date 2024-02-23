@@ -186,12 +186,32 @@ function diffPrimitive<T extends { [key: string]: any }>(
   const yKeys = Object.keys(y);
   const deletedKeys = setDifference(xKeys, yKeys);
   const addedKeys = setDifference(yKeys, xKeys);
-  const changedKeys = xKeys.filter((key) => x[key] !== y[key]);
+  const changedKeys = xKeys.filter((key) => !deepishEqual(x[key], y[key]));
   const diffKeys = addedKeys.concat(changedKeys);
   return {
     ...Object.fromEntries(deletedKeys.map((key) => [key, undefined])),
     ...Object.fromEntries(diffKeys.map((key) => [key, y[key]])),
   };
+}
+
+/**
+ * Equality for arrays and primitives.
+ */
+function deepishEqual<T>(x: T, y: T): boolean {
+  if (Array.isArray(x)) {
+    if (!Array.isArray(y)) {
+      return false;
+    }
+    return zipArrays(x, y).reduce(
+      (same, [a, b]) => same && deepishEqual(a, b),
+      true,
+    );
+  }
+  return x === y;
+}
+
+function zipArrays<X, Y>(x: X[], y: Y[]): [X, Y][] {
+  return x.map((v, i) => [v, y[i]]);
 }
 
 function setDifference(x: string[], y: string[]): string[] {

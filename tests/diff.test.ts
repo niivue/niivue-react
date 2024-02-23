@@ -272,6 +272,12 @@ const DIFF_PRIMITIVE_TEST_CASES: [object, object, object, string][] = [
     "no change (same array ref)",
   ],
   [
+    { color: COLORS.Yellow },
+    { color: COLORS.Yellow.map((n) => n) },
+    {},
+    "no change (same array, different ref)",
+  ],
+  [
     { type: "paint", color: COLORS.Red },
     { type: "paint", color: COLORS.Yellow },
     { color: COLORS.Yellow },
