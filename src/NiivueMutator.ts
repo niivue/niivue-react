@@ -58,7 +58,15 @@ class NiivueMutator {
          */
         const setter = this.optionUpdateFunctionMap[key];
         if (setter !== undefined) {
-          setter(value);
+          try {
+            setter(value);
+          } catch (e) {
+            if (e instanceof Error && e.message === 'this.crosshairs3D is null') {
+              console.warn('Caught error which was fixed in https://github.com/niivue/niivue/pull/864, please update Niivue.');
+            } else {
+              throw e;
+            }
+          }
         } else if (key in this.nv.opts) {
           // @ts-ignore
           this.nv.opts[key] = value;
