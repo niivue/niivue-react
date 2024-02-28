@@ -61,8 +61,16 @@ class NiivueMutator {
           try {
             setter(value);
           } catch (e) {
-            if (e instanceof Error && e.message === 'this.crosshairs3D is null') {
-              console.warn('Caught error which was fixed in https://github.com/niivue/niivue/pull/864, please update Niivue.');
+            if (!(e instanceof Error)) {
+              throw e;
+            }
+            if (
+              e.message === "this.crosshairs3D is null" ||
+              e.message === "Cannot read properties of null (reading 'mm')"
+            ) {
+              console.warn(
+                "Caught error which was fixed in https://github.com/niivue/niivue/pull/864, please update Niivue.",
+              );
             } else {
               throw e;
             }
