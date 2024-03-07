@@ -246,6 +246,10 @@ class NiivueMutator {
     }
     return i;
   }
+
+  removeVolumeByUrl(...args: Parameters<Niivue["removeVolumeByUrl"]>) {
+    this.nv.removeVolumeByUrl(...args);
+  }
 }
 
 // /**

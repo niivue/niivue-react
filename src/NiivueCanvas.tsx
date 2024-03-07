@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
-import { NVRMesh, NVRVolume, NVROptions } from "./model.ts";
+import { NVRMesh, NVRVolume, NVROptions } from "./model";
 import { Niivue } from "@niivue/niivue";
-import { Diff, diffList, diffPrimitive, noChange } from "./diff.ts";
-import NiivueMutator from "./NiivueMutator.ts";
+import { Diff, diffList, diffPrimitive, noChange } from "./diff";
+import NiivueMutator from "./NiivueMutator";
 
 type NiivueCanvasProps = {
   meshes?: NVRMesh[];
@@ -47,18 +47,15 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   const prevVolumesRef = useRef<NVRVolume[]>([]);
   const prevOptionsRef = useRef<NVROptions>({});
 
-  const nv = nvRef.current;
-  const nvMutator = new NiivueMutator(nv);
-
-  const setup = async () => {
+  const setup = async (nv: Niivue) => {
     await nv.attachToCanvas(canvasRef.current as HTMLCanvasElement);
     onStart && onStart(nv);
   };
 
-  const syncStateWithProps = async () => {
-    const configChanged = syncConfig();
-    const [volumesChanged] = await Promise.all([syncVolumes()]);
-    onChanged && (configChanged || volumesChanged) && onChanged(nv);
+  const syncStateWithProps = async (nvMutator: NiivueMutator): Promise<boolean> => {
+    const configChanged = syncConfig(nvMutator);
+    const [volumesChanged] = await Promise.all([syncVolumes(nvMutator)]);
+    return configChanged || volumesChanged;
   };
 
   /**
@@ -66,7 +63,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
    *
    * @returns true if `volumes` was changed
    */
-  const syncVolumes = async (): Promise<boolean> => {
+  const syncVolumes = async (nvMutator: NiivueMutator): Promise<boolean> => {
     if (prevVolumesRef.current === volumes) {
       return false;
     }
@@ -80,9 +77,9 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     }
 
     if (diffs.added.length > 0) {
-      await reloadVolumes(prevVolumes, diffs);
+      await reloadVolumes(nvMutator, prevVolumes, diffs);
     } else if (diffs.removed.length > 0) {
-      diffs.removed.forEach((vol) => nv.removeVolumeByUrl(vol.url));
+      diffs.removed.forEach((vol) => nvMutator.removeVolumeByUrl(vol.url));
     }
     diffs.changed.forEach((vol) => nvMutator.applyVolumeChanges(vol));
     return true;
@@ -91,10 +88,12 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   /**
    * Reload all previously loaded volumes as well as newly added volumes.
    *
+   * @param nvMutator Niivue mutator wrapper
    * @param prevVolumes previously loaded volumes
    * @param diffs object containing new volumes you want to add
    */
   const reloadVolumes = async (
+    nvMutator: NiivueMutator,
     prevVolumes: NVRVolume[],
     diffs: Diff<NVRVolume>,
   ) => {
@@ -113,7 +112,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
    *
    * @returns true if `options` was changed
    */
-  const syncConfig = (): boolean => {
+  const syncConfig = (nvMutator: NiivueMutator): boolean => {
     if (prevOptionsRef.current === options) {
       return false;
     }
@@ -131,13 +130,21 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     return true;
   };
 
-  if (ready && nvMutator.glIsReady()) {
-    syncStateWithProps();
-  }
+  React.useEffect(() => {
+    setup(nvRef.current).then(() => setReady(true));
+  }, []);
 
   React.useEffect(() => {
-    setup().then(() => setReady(true));
-  }, []);
+    if (!ready) {
+      return;
+    }
+    const nv = nvRef.current;
+    const nvMutator = new NiivueMutator(nv);
+    if (!nvMutator.glIsReady()) {
+      return;
+    }
+    syncStateWithProps(nvMutator).then((changed) => changed && onChanged && onChanged(nv));
+  }, [ready, meshes, volumes, options, onChanged]);
 
   return <canvas ref={canvasRef} />;
 };
