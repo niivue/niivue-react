@@ -59,5 +59,5 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   // Do NOT use React.StrictMode.
   // See https://github.com/niivue/niivue/issues/912
-  <RouterProvider router={router} />
+  <RouterProvider router={router} />,
 );

@@ -149,7 +149,7 @@ const ModulateScalar = () => {
       </header>
       <main>
         <NiivueCanvas
-          volumes={Object.values(volumes)}
+          volumes={React.useMemo(() => Object.values(volumes), [volumes])}
           options={FIXED_OPTIONS}
           onStart={configNiivue}
         />

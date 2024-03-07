@@ -68,7 +68,10 @@ class NiivueMutator {
             // this.crosshairs3D is null
             // Cannot read properties of null (reading 'mm')
             // null is not an object (evaluating 'this.crosshairs3D.mm')
-            if (e.message.includes("null") && (e.message.includes("mm") || e.message.includes("crosshairs3D"))) {
+            if (
+              e.message.includes("null") &&
+              (e.message.includes("mm") || e.message.includes("crosshairs3D"))
+            ) {
               console.warn(
                 "Caught error which was fixed in https://github.com/niivue/niivue/pull/864, please update Niivue.",
               );

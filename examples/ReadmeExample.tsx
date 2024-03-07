@@ -54,7 +54,10 @@ const ReadmeExample = () => {
         </label>
       </div>
       <div>
-        <NiivueCanvas options={options} volumes={Object.values(volumes)} />
+        <NiivueCanvas
+          options={options}
+          volumes={React.useMemo(() => Object.values(volumes), [volumes])}
+        />
       </div>
     </>
   );

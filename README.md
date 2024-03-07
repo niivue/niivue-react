@@ -111,6 +111,8 @@ const ReadmeExample = () => {
       draft.isOrientCube = !value;
     });
   };
+  
+  const volumesList = React.useMemo(() => Object.values(volumes), [volumes]);
 
   return (<>
     <div>
@@ -131,7 +133,12 @@ const ReadmeExample = () => {
         />
       </label>
     </div>
-    <div><NiivueCanvas options={options} volumes={Object.values(volumes)} /></div>
+    <div>
+      <NiivueCanvas
+        options={options}
+        volumes={React.useMemo(() => Object.values(volumes), [volumes])}
+      />
+    </div>
   </>);
 }
 ```

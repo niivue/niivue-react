@@ -52,7 +52,9 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     onStart && onStart(nv);
   };
 
-  const syncStateWithProps = async (nvMutator: NiivueMutator): Promise<boolean> => {
+  const syncStateWithProps = async (
+    nvMutator: NiivueMutator,
+  ): Promise<boolean> => {
     const configChanged = syncConfig(nvMutator);
     const [volumesChanged] = await Promise.all([syncVolumes(nvMutator)]);
     return configChanged || volumesChanged;
@@ -143,7 +145,9 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
     if (!nvMutator.glIsReady()) {
       return;
     }
-    syncStateWithProps(nvMutator).then((changed) => changed && onChanged && onChanged(nv));
+    syncStateWithProps(nvMutator).then(
+      (changed) => changed && onChanged && onChanged(nv),
+    );
   }, [ready, meshes, volumes, options, onChanged]);
 
   return <canvas ref={canvasRef} />;
