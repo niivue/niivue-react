@@ -20,12 +20,7 @@ it("uses option setter functions", () => {
     .mockImplementationOnce(noop);
   const setCrosshairColor = vi
     .spyOn(nv, "setCrosshairColor")
-    .mockImplementationOnce(
-      // upstream bug: not actually async
-      // https://github.com/niivue/niivue/pull/858
-      // @ts-ignore
-      noop,
-    );
+    .mockImplementationOnce(noop);
   const updateGLVolume = vi
     .spyOn(nv, "updateGLVolume")
     .mockImplementationOnce(noop);
