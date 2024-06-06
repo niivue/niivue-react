@@ -16,19 +16,19 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
     - name: Install Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: 21.6.0
-    - uses: pnpm/action-setup@v2
+    - uses: pnpm/action-setup@v4
       name: Install pnpm
       with:
-        version: 8.14.1
+        version: 9.0.6
         run_install: false
     - name: Get pnpm store directory
       id: pnpm_info
       shell: bash
       run: echo "store_path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       name: Setup pnpm cache
       with:
         path: ${{ steps.pnpm_info.outputs.store_path }}
@@ -57,7 +57,7 @@ jobs:
         fail_ci_if_error: true
     - name: Upload E2E test coverage
       if: ${{ always() }}
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage-playwright/clover.xml
