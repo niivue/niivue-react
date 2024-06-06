@@ -11,21 +11,21 @@
     "fmt": "biome format --write ."
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.7.1",
-    "@niivue/niivue": "^0.41.1",
-    "@playwright/test": "^1.43.1",
-    "@types/node": "^20.12.7",
-    "@types/react": "^18.2.79",
-    "@types/react-dom": "^18.2.25",
-    "@vitest/coverage-v8": "^1.5.0",
+    "@biomejs/biome": "^1.8.0",
+    "@niivue/niivue": "^0.43.3",
+    "@playwright/test": "^1.44.1",
+    "@types/node": "^20.14.2",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitest/coverage-v8": "^1.6.0",
     "c8": "^9.1.0",
-    "happy-dom": "^14.7.1",
+    "happy-dom": "^14.12.0",
     "playwright-test-coverage-native": "^0.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.1",
     "use-immer": "^0.9.0",
-    "vite": "^5.2.10",
-    "vitest": "^1.5.0"
+    "vite": "^5.2.12",
+    "vitest": "^1.6.0"
   },
   "peerDependencies": {
     "@niivue/niivue": "^0.39.0",
