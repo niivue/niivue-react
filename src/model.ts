@@ -44,7 +44,6 @@ type LoadableVolumeOptions = Pick<
   | "cal_min"
   | "cal_max"
   | "trustCalMinMax"
-  | "visible"
   | "colorbarVisible"
 >;
 
