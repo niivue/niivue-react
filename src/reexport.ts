@@ -2,7 +2,7 @@
  * Type definitions copy-pasted from `niivue` since they are not public.
  */
 
-import { DRAG_MODE, SLICE_TYPE } from "@niivue/niivue";
+import { DRAG_MODE, SHOW_RENDER, SLICE_TYPE } from "@niivue/niivue";
 
 /**
  * Niivue options.
@@ -71,8 +71,10 @@ type NiiVueOptions = {
   isOrientCube?: boolean;
   // spacing between tiles of a multiplanar view
   multiplanarPadPixels?: number;
-  // always show rendering in multiplanar view
+  // @deprecated - use multiplanarShowRender instead. Always show rendering in multiplanar view
   multiplanarForceRender?: boolean;
+  // behavior for 3D render when in multiplanar view
+  multiplanarShowRender?: SHOW_RENDER;
   // 2D slice views can show meshes within this range. Meshes only visible in sliceMM (world space) mode
   meshThicknessOn2D?: number;
   // behavior for dragging (none, contrast, measurement, pan)
