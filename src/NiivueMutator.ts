@@ -1,9 +1,11 @@
-import { Niivue, NVImage } from "@niivue/niivue";
+import { Niivue, NVImage, NVMesh } from "@niivue/niivue";
 import {
   NVRVolume,
   LoadableVolumeOptions,
   ImageOptions,
   NVROptions,
+  NVRMesh,
+  HasUrlObject,
 } from "./model.ts";
 import * as setters from "./setters.ts";
 import { ColorMap } from "./reexport.ts";
@@ -19,6 +21,8 @@ class NiivueMutator {
 
   constructor(nv: Niivue) {
     this.nv = nv;
+    // @ts-ignore
+    window.nv = nv;
     this.volumeUpdateFunctionByIndexMap =
       setters.volumeUpdateFunctionByIndexMap(nv);
     this.volumeUpdateFunctionByIdMap = setters.volumeUpdateFunctionByIdMap(nv);
@@ -253,20 +257,62 @@ class NiivueMutator {
   removeVolumeByUrl(...args: Parameters<Niivue["removeVolumeByUrl"]>) {
     this.nv.removeVolumeByUrl(...args);
   }
+
+  // === Mesh Methods ===
+
+  /**
+   * Load meshes into the Niivue instance.
+   */
+  public async loadMeshes(meshes: NVRMesh[]) {
+    await this.nv.loadMeshes(meshes.map(canonicalizeNvrMesh));
+  }
+
+  /**
+   * Remove a mesh by its URL.
+   */
+  removeMeshByUrl(...args: Parameters<Niivue["removeMeshByUrl"]>) {
+    this.nv.removeMeshByUrl(...args);
+  }
+
+  /**
+   * Apply changes to a loaded mesh.
+   */
+  public applyMeshChanges(changes: NVRMesh) {
+    const meshIndex = this.getMeshIndex(changes);
+
+    typedEntries(changes).forEach(([propertyName, value]) => {
+      if (!isMeshOption(propertyName)) {
+        return;
+      }
+      console.log(propertyName, value);
+      // @todo: fixme
+      // @ts-ignore
+      this.nv.setMeshProperty(meshIndex, propertyName, value);
+    });
+    this.nv.updateGLVolume();
+  }
+
+  private getMeshIndex(changes: NVRMesh): number {
+    const loadedMesh = this.nv.getMediaByUrl(changes.url);
+    if (typeof loadedMesh === "undefined") {
+      throw new Error(`No mesh found with URL ${changes.url}`);
+    }
+    return this.nv.getMeshIndexByID(loadedMesh.id);
+  }
 }
 
-// /**
-//  * Converts to `LoadFromUrlParams` (which is not exported by niivue).
-//  */
-// function canonicalizeNvrMesh(mesh: NVRMesh): HasUrlObject {
-//   if (mesh.layers) {
-//     return {
-//       ...mesh,
-//       layers: Object.values(mesh.layers),
-//     };
-//   }
-//   return mesh;
-// }
+/**
+ * Converts to `LoadFromUrlParams` (which is not exported by niivue).
+ */
+function canonicalizeNvrMesh(mesh: NVRMesh): HasUrlObject {
+  if (mesh.layers) {
+    return {
+      ...mesh,
+      layers: Object.values(mesh.layers),
+    };
+  }
+  return mesh;
+}
 
 /**
  * Wrapper around `Object.entries` with safe type coercion of the keys to `keyof T`.
@@ -295,6 +341,19 @@ const UNLOADABLE_IMAGE_FIELDS: (keyof NVRVolume)[] = [
 function isVolumeOption(name: keyof NVRVolume): name is keyof ImageOptions {
   // does TypeScript have a "keyof" function which works in an if statement at runtime?
   return SPECIAL_IMAGE_FIELDS.findIndex((key) => name === key) === -1;
+}
+
+/**
+ * Fields of `NVRMesh` which cannot be changed by setting them directly on `nv.meshes[i]`.
+ */
+const SPECIAL_MESH_FIELDS: (keyof NVRMesh)[] = ["url"];
+
+/**
+ * Helper function for filtering volume properties which can be set directly on `NVImage`.
+ */
+function isMeshOption(name: keyof NVRMesh): name is keyof NVRMesh {
+  // does TypeScript have a "keyof" function which works in an if statement at runtime?
+  return SPECIAL_MESH_FIELDS.findIndex((key) => name === key) === -1;
 }
 
 /**

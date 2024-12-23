@@ -100,6 +100,8 @@ type NiiVueOptions = {
   // optional 2D png bitmap that can be rapidly loaded to defer slow loading of 3D image
   thumbnail?: string;
 
+  meshXRay?: number;
+
   // from NVConfigOptions
   sliceType?: SLICE_TYPE;
 };
