@@ -99,6 +99,50 @@ type NiiVueOptions = {
   maxDrawUndoBitmaps?: number;
   // optional 2D png bitmap that can be rapidly loaded to defer slow loading of 3D image
   thumbnail?: string;
+  // Default is ''
+  sliceMosaicString?: string,
+  // Default is false
+  centerMosaic?: boolean,
+  // In voxels, since all drawing is done using bitmap indices. Default is 1
+  penSize?: number,
+  // Default is false
+  clickToSegment?: boolean,
+  // In mm. Default is 3
+  clickToSegmentRadius?: number,
+  // Default is true
+  clickToSegmentBright?: boolean,
+  // New option, but keep clickToSegmentBright for backwards compatibility. Default is false.
+  clickToSegmentAutoIntensity?: boolean,
+  // Default is NaN, which will use auto threshold (default flood fill behavior from before)
+  clickToSegmentIntensityMax?: number,
+  // Default is NaN. which will use auto threshold (default flood fill behavior from before)
+  // 0 will use auto threshold (default flood fill behavior from before)
+  // Take the voxel intensity at the click point and use this percentage +/- to threshold the flood fill operation.
+  // If greater than 0, clickedVoxelIntensity +/- clickedVoxelIntensity * clickToSegmentPercent will be used
+  // for the clickToSegmentIntensityMin and clickToSegmentIntensityMax values
+  clickToSegmentIntensityMin?: number,
+  // Default is 0
+  clickToSegmentPercent?: number,
+  // Default value is infinity for backwards compatibility with flood fill routine
+  clickToSegmentMaxDistanceMM?: number,
+  // Default is false
+  clickToSegmentIs2D?: boolean,
+  // Default is 4
+  selectionBoxLineThickness?: number,
+  // Default is false
+  selectionBoxIsOutline?: boolean,
+  // determines if the cavas need to be focused to scroll. Default is false
+  scrollRequiresFocus: boolean,
+  // controls whether measuring tool shows units. e.g. 20.2 vs 20.2 mm. Default is true
+  showMeasureUnits?: boolean,
+  // control where the measuring tool text is shown. Default is "center"
+  measureTextJustify?: "start" | "center" | "end";
+  // control measuring tool text color. Default is [1, 0, 0, 1] (red)
+  measureTextColor: number[],
+  // control measuring tool line color. Default is [1, 0, 0, 1] (red)
+  measureLineColor: number[],
+  // control measuring tool text height (fractional height, separate from main textHeight property for orientation labels). Default is 0.03
+  measureTextHeight?: number
 
   // from NVConfigOptions
   sliceType?: SLICE_TYPE;
