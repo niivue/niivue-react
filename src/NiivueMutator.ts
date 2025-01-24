@@ -21,8 +21,6 @@ class NiivueMutator {
 
   constructor(nv: Niivue) {
     this.nv = nv;
-    // @ts-ignore
-    window.nv = nv;
     this.volumeUpdateFunctionByIndexMap =
       setters.volumeUpdateFunctionByIndexMap(nv);
     this.volumeUpdateFunctionByIdMap = setters.volumeUpdateFunctionByIdMap(nv);
