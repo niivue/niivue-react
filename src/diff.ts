@@ -195,6 +195,7 @@ function diffPrimitive<T extends { [key: string]: any }>(
   };
 }
 
+// @ts-ignore
 function zipArrays<X, Y>(x: X[], y: Y[]): [X, Y][] {
   return x.map((v, i) => [v, y[i]]);
 }
