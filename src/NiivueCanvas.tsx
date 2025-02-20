@@ -48,7 +48,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   const prevOptionsRef = useRef<NVROptions>({});
 
   const setup = async (nv: Niivue) => {
-    await nv.attachToCanvas(canvasRef.current as HTMLCanvasElement);
+    await nv.attachToCanvas(canvasRef.current as HTMLCanvasElement, options?.isAntiAlias ?? null);
     onStart && onStart(nv);
   };
 
