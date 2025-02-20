@@ -103,6 +103,9 @@ type NVROptions = NiiVueOptions & {
   crosshairColor?: number[];
   crosshairWidth?: number;
   volScaleMultiplier?: number;
+
+  // Sets the ant-alias option when attaching Niivue to canvas
+  isAntiAlias?: boolean;
 };
 
 export type {
