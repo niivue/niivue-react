@@ -24,9 +24,13 @@ type NVRMeshLayer = {
 /**
  * A mesh (e.g. white-matter surface) in Niivue.
  */
-type NVRMesh = { url: string; layers: NVRMeshLayer[] } & Pick<
+type NVRMesh = {
+  url: string;
+  layers?: NVRMeshLayer[];
+  rgba255?: number[] | Uint8Array;
+} & Pick<
   Partial<NVMeshFromUrlOptions>,
-  "name" | "opacity" | "visible" | "rgba255" | "colorbarVisible"
+  "name" | "opacity" | "visible" | "colorbarVisible"
 >;
 
 /**
