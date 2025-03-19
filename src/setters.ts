@@ -17,6 +17,7 @@ function optionUpdateFunctionMap(nv: Niivue): OptionUpdateFunctionMap {
     crosshairColor: nv.setCrosshairColor,
     sliceType: nv.setSliceType,
     isSliceMM: nv.setSliceMM,
+    // forceDevicePixelRatio: nv.setHighResolutionCapable,
   };
   return bindAllValues(nv, mapping);
 }

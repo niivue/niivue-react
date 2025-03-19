@@ -2,7 +2,7 @@
  * Type definitions copy-pasted from `niivue` since they are not public.
  */
 
-import { DRAG_MODE, SHOW_RENDER, SLICE_TYPE } from "@niivue/niivue";
+import {DRAG_MODE, MULTIPLANAR_TYPE, SHOW_RENDER, SLICE_TYPE} from "@niivue/niivue";
 
 /**
  * Niivue options.
@@ -75,6 +75,8 @@ type NiiVueOptions = {
   multiplanarForceRender?: boolean;
   // behavior for 3D render when in multiplanar view
   multiplanarShowRender?: SHOW_RENDER;
+  // Control how the layout panels are positioned in multiplanar mode
+  multiplanarLayout?: MULTIPLANAR_TYPE;
   // 2D slice views can show meshes within this range. Meshes only visible in sliceMM (world space) mode
   meshThicknessOn2D?: number;
   // behavior for dragging (none, contrast, measurement, pan)
@@ -87,8 +89,11 @@ type NiiVueOptions = {
   sagittalNoseLeft?: boolean;
   // are images aligned to voxel space (false) or world space (true)
   isSliceMM?: boolean;
-  // demand that high-dot-per-inch displays use native voxel size
+  // @deprecated - use forceDevicePixelRatio instead. Demand that high-dot-per-inch displays use native voxel size
   isHighResolutionCapable?: boolean;
+  // The default is zero (high resolution capable), a negative value disables high resolution
+  // (to device pixel ratio is 1), and a positive value enforces the requested device pixel ratio
+  forceDevicePixelRatio?: number;
   // allow user to create and edit voxel-based drawings
   drawingEnabled?: boolean;
   // color of drawing when user drags mouse (if drawingEnabled)
@@ -132,15 +137,15 @@ type NiiVueOptions = {
   // Default is false
   selectionBoxIsOutline?: boolean,
   // determines if the cavas need to be focused to scroll. Default is false
-  scrollRequiresFocus: boolean,
+  scrollRequiresFocus?: boolean,
   // controls whether measuring tool shows units. e.g. 20.2 vs 20.2 mm. Default is true
   showMeasureUnits?: boolean,
   // control where the measuring tool text is shown. Default is "center"
   measureTextJustify?: "start" | "center" | "end";
   // control measuring tool text color. Default is [1, 0, 0, 1] (red)
-  measureTextColor: number[],
+  measureTextColor?: number[],
   // control measuring tool line color. Default is [1, 0, 0, 1] (red)
-  measureLineColor: number[],
+  measureLineColor?: number[],
   // control measuring tool text height (fractional height, separate from main textHeight property for orientation labels). Default is 0.03
   measureTextHeight?: number
 
