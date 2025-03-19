@@ -41,7 +41,7 @@ const NiivueCanvas: React.FC<NiivueCanvasProps> = ({
   }
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const nvRef = React.useRef(new Niivue());
+  const nvRef = React.useRef(new Niivue(options));
   const [ready, setReady] = React.useState(false);
 
   const prevVolumesRef = useRef<NVRVolume[]>([]);
