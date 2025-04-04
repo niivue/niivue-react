@@ -149,6 +149,8 @@ type NiiVueOptions = {
   // control measuring tool text height (fractional height, separate from main textHeight property for orientation labels). Default is 0.03
   measureTextHeight?: number
 
+  meshXRay?: number;
+
   // from NVConfigOptions
   sliceType?: SLICE_TYPE;
 };
